@@ -1,11 +1,11 @@
-import { Button, Form, message, Space } from "antd";
+import { Button, Form, message, Row } from "antd";
 import { useState } from "react";
-import { addNewItem, getCurrentDayString } from "../Firebase/Firebase";
+import { addNewItem, deleteItem, getCurrentDayString } from "../Firebase/Firebase";
 import OrderCartTable from "./OrderCartTable";
 
-const OrderCart = ({customerProfile}) => {
+const OrderCart = ({customerProfile, orderInfo, mode = "newOrder", initalCartProducts}) => {
   const [form] = Form.useForm();
-  const [cartProducts, setCartProducts] = useState([]);
+  const [cartProducts, setCartProducts] = useState(initalCartProducts || []);
   const onAddNewProduct = () => {
     const lastIndex = cartProducts.length
       ? cartProducts[cartProducts.length - 1].key
@@ -56,6 +56,25 @@ const OrderCart = ({customerProfile}) => {
     return;
    
   }
+  const onCartUpdate = ()=>{
+    form
+      .validateFields()
+      .then(() => {
+        if (!cartProducts.length) {message.info("You haven't order any dish :<"); return;}
+        const orderId = orderInfo.orderId
+        deleteItem(`/orders/${orderId}/productOrderedList/`)
+        for (const cartProduct of cartProducts) {
+          addNewItem(`/orders/${orderId}/productOrderedList/`, {
+            orderProductId: cartProduct.orderProductId,
+            orderQuantum: cartProduct.orderQuantum,
+            orderUnitPrice: cartProduct.orderUnitPrice,
+          },true);
+        }
+        message.success("Update successfully!")
+      })
+      .catch((error) => console.log(error));
+    return;
+  }
   if (!customerProfile) return (<p>Please select a customer profile </p>)
   return (
     <>
@@ -63,17 +82,43 @@ const OrderCart = ({customerProfile}) => {
         cartProducts={cartProducts}
         onCartProductUpdateValues={onCartProductUpdateValues}
         onCartProductDelete={onCartProductDelete}
-        onCartOrder={onCartOrder}
-        form = {form}
+        form={form}
       />
-      <Space>
-        <Button type="primary" onClick={onAddNewProduct}>
-          Add a product
-        </Button>
-        <Button type="primary" onClick={onCartOrder} >
-          Order
-        </Button>
-      </Space>
+      {mode !== "newOrder" ? (
+        <>
+          <Row>
+            <b>Order date:</b> {orderInfo.orderDate}
+          </Row>
+          <Row >
+            <b>Order status:</b> {orderInfo.orderStatus}
+          </Row>
+          <Row justify="space-between" style={{marginTop:20}}>
+            <Button type="primary" onClick={onAddNewProduct}>
+              Add a product
+            </Button>
+            <Button
+              type="primary"
+              onClick={onCartUpdate}
+              style={{ backgroundColor: "green" }}
+            >
+              Update
+            </Button>
+          </Row>
+        </>
+      ) : (
+        <Row justify="space-between" style={{marginTop:20}}>
+          <Button type="primary" onClick={onAddNewProduct}>
+            Add a product
+          </Button>
+          <Button
+            type="primary"
+            onClick={onCartOrder}
+            style={{ backgroundColor: "green" }}
+          >
+            Order
+          </Button>
+        </Row>
+      )}
     </>
   );
 };

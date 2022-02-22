@@ -1,13 +1,16 @@
-import { Table } from "antd";
+import { Form, Input, Table, DatePicker } from "antd";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
-import { deleteItem } from "../Firebase/Firebase";
+import { deleteItem, updateItem } from "../Firebase/Firebase";
+import moment from "moment";
 
 import { getCustomerOrderTableColumns } from "./CustomerOrderTableInfo";
 
+
 const CustomerOrderTable = ({ customerId }) => {
   const history = useHistory()
+  const [form] = Form.useForm()
   const [editingKey, setEditingKey] = useState("")
   const isEditing = (record) => record.key === editingKey
   const cancelEdit = ()=>{
@@ -22,10 +25,39 @@ const CustomerOrderTable = ({ customerId }) => {
   const onOrderDelete = (order) => {
     deleteItem(`orders/${order.orderId}`)
   }
-  const onOrderEditing = () => {
+  const onOrderEditing = (order) => {
+    setEditingKey(order.key)
+    form.setFieldsValue({...order,orderDate:moment(order.orderDate,"DD/MM/YYYY")})
+
     
   } 
-  const columns = getCustomerOrderTableColumns({onRemoveButtonCLicked:onOrderDelete,onEditButtonCLicked:onOrderEditing, isEditing})
+  const saveEditedOrder = (order) => {
+    const formValues = form.getFieldsValue()
+    const newInfoOrder = {
+      customerOrderId: order.customerOrderId,
+      orderDate: formValues.orderDate.format("DD/MM/YYYY"),
+      orderStatus: formValues.orderStatus,
+    };
+    updateItem(`/orders/${order.orderId}/`,newInfoOrder)
+  }
+  const onOrderDoneEditing = (order) =>{
+    saveEditedOrder(order)
+    cancelEdit();
+  }
+  const onOrderCancelEditing = () => {
+    cancelEdit();
+  }
+  const columns = getCustomerOrderTableColumns({
+    onRemoveButtonCLicked: onOrderDelete,
+    onEditButtonCLicked: onOrderEditing,
+    onCancelButtonClicked: onOrderCancelEditing,
+    onDoneButtonClicked: onOrderDoneEditing,
+    isEditing,
+  });
+
+  const onFormValuesChange  = () => {
+    console.log(form.getFieldsValue())
+  }
   const mergedColumns = columns.map((col) => {
     if (!col.editable)
       return col
@@ -43,12 +75,22 @@ const CustomerOrderTable = ({ customerId }) => {
     }
   }
 
+  const editTableCell = ({record,editing,dataIndex,children,...restProps}) => {
+    const inputNode  = dataIndex === "orderDate" ? <DatePicker format={"DD/MM/YYYY"} onChange={onFormValuesChange} /> :<Input onChange={onFormValuesChange} />
+    return <td {...restProps}>
+      {editing ? <Form.Item name={dataIndex} style={{margin:0}}>{inputNode}</Form.Item> : children}
+    </td>
+  }
+
   return (
-    <Table
-      columns={columns}
-      dataSource={dataSource}
-      onRow = {onRow}
-    />
+    <Form form={form} component={false}>
+      <Table
+        columns={mergedColumns}
+        dataSource={dataSource}
+        onRow = {onRow}
+        components = {{body:{cell:editTableCell}}}
+      />
+    </Form>
   );
 };
 

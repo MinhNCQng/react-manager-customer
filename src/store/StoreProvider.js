@@ -1,6 +1,6 @@
 import { Provider } from "react-redux";
 import store from "./store";
-import { useEffect, useLayoutEffect } from "react";
+import { useLayoutEffect } from "react";
 import { fbStore } from "../components/Firebase/Firebase";
 import { ref, onValue } from "firebase/database";
 import { customerActions } from "./slices/customerSlices";

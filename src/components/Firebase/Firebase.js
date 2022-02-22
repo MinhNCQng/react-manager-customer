@@ -26,6 +26,7 @@ const deleteItem = (pathToItem) => {
     set(ref(fbStore,pathToItem),{})
 }
 
+
 const getCurrentDayString = ()=> 
   new Date().toLocaleDateString('en-GB',{
     month:'2-digit',

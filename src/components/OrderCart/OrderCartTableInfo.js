@@ -10,6 +10,7 @@ const getOrderCartTableColumns = ({onRemoveCartProduct})=>[
     title: "Unit price",
     dataIndex: "orderUnitPrice",
     key: "orderUnitPrice",
+    disabled:true,
   },
   {
     title: "Quantum",

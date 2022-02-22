@@ -16,6 +16,7 @@ function CustomerForm({ form, isEditing, customerData }) {
     lastName:[{ required: true, message: 'Please input your last name!' }],
     phoneNumber: [{ required: true, message: 'Please input your phone number!' }],
   }
+
   return (
     <>
       <Form form={form} {...formItemLayout} initialValues={customerData}>

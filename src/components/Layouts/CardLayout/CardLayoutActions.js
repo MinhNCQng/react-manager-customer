@@ -1,4 +1,4 @@
-import { CheckOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Row, Col, Button } from "antd";
 const editingActions = ({ onDoneButtonClicked, onCancelButtonClicked }) => [
   <Row justify="space-around">
@@ -10,7 +10,7 @@ const editingActions = ({ onDoneButtonClicked, onCancelButtonClicked }) => [
     </Col>
     <Col span={11}>
       <Button onClick={onCancelButtonClicked} block key="cancelEdit">
-        <EditOutlined />
+        <CloseOutlined />
         Cancel
       </Button>
     </Col>

@@ -1,10 +1,10 @@
-import { Form, InputNumber, Table } from "antd";
-import { useEffect  } from "react";
+import { Form, InputNumber, Table, Row, Col } from "antd";
+import { useEffect, useState  } from "react";
 import ProductSelector from "../ProductSelector/ProductSelector";
 import { getOrderCartTableColumns } from "./OrderCartTableInfo";
 
-const OrderCartTable = ({cartProducts, onCartProductUpdateValues, onCartProductDelete, onCartOrder, form}) => {
-
+const OrderCartTable = ({cartProducts, onCartProductUpdateValues, onCartProductDelete, form}) => {
+  const [cartTotalPrice, setCartTotalPrice] = useState(0)
   const setFormInitalValues = ()=> {
     const formValues = {}
     for (const cartProduct of cartProducts) {
@@ -23,7 +23,7 @@ const OrderCartTable = ({cartProducts, onCartProductUpdateValues, onCartProductD
   const columns = orderCartTableColumns.map((column) => {
       return {
           ...column,
-          onCell: (record) => ({title:column.title,dataKey:record.key,dataIndex:column.dataIndex,record})
+          onCell: (record) => ({title:column.title,dataKey:record.key,dataIndex:column.dataIndex,record,disabled:column.disabled})
       }
   });
 
@@ -38,8 +38,7 @@ const OrderCartTable = ({cartProducts, onCartProductUpdateValues, onCartProductD
     };
     onCartProductUpdateValues(orderProductKey,cartProductValues)
   }
-  const EditableCell = ({record, title, dataKey ,dataIndex,children, ...restProps }) => {
-    const disabled = dataIndex ==="orderUnitPrice" 
+  const EditableCell = ({record, disabled, title, dataKey , dataIndex, children, ...restProps}) => {
     const inputNode =
       dataIndex === "orderProductName" ? (
         <ProductSelector
@@ -64,9 +63,10 @@ const OrderCartTable = ({cartProducts, onCartProductUpdateValues, onCartProductD
       </td>
     );
   };
+
   useEffect(() => {
     setFormInitalValues()
-
+    setCartTotalPrice(calculateTotalProductPrice(cartProducts))
   }, [cartProducts])
   
 
@@ -76,9 +76,25 @@ const OrderCartTable = ({cartProducts, onCartProductUpdateValues, onCartProductD
         columns={columns}
         dataSource={cartProducts}
         components={cartProducts.length && { body: { cell: EditableCell} }}
+        footer = {()=>
+          <Row justify="space-between">
+            <Col>
+              Total:
+            </Col>
+            <Col>
+              {cartTotalPrice} VND
+            </Col>
+          </Row>
+        }
       />
     </Form>
   );
 };
+
+const calculateTotalProductPrice = (cartProducts) =>{
+  const availableProductPrice = cartProducts.filter(cartProduct => (cartProduct.orderQuantum && cartProduct.orderUnitPrice))
+  const totalCartProductsPrice = availableProductPrice.reduce((total, cartProduct) => total+(cartProduct.orderQuantum*cartProduct.orderUnitPrice),0)
+  return totalCartProductsPrice;
+}
 
 export default OrderCartTable;

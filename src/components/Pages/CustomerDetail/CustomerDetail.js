@@ -1,5 +1,5 @@
 import { Form, Tabs } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CustomerForm from "../../CustomerForm/CustomerForm";
 import { useParams } from "react-router-dom";
 import CardLayout from "../../Layouts/CardLayout/CardLayout";
@@ -23,15 +23,14 @@ function CustomerDetail(props) {
       (customer) => customer.customerId === detailCustomerId
     )
   );
-  const [defaultData, setDefaultData] = useState(detailCustomerData);
-
+  const [customerData, setCustomerData] = useState(detailCustomerData);
   const onEditButtonCLicked = (e) => {
     setIsEditing(true);
-    setDefaultData(form.getFieldsValue());
+    setCustomerData(form.getFieldsValue());
   };
   const onCancelButtonClicked = (e) => {
     setIsEditing(false);
-    form.setFieldsValue(defaultData);
+    form.setFieldsValue(customerData);
   };
   const onDoneButtonClicked = (e) => {
     const newCustomerData = form.getFieldsValue();
@@ -50,6 +49,10 @@ function CustomerDetail(props) {
   const tabAction = {
     "profile": detailActions
   }
+  useEffect(() => {
+    setCustomerData(detailCustomerData);
+    form.setFieldsValue(detailCustomerData);
+  }, [detailCustomerData]);
   return (
     <CardLayout cardTitle={"Customer detail"} actions={tabAction[tabKey]} back>
       <Tabs defaultActiveKey="profile" onChange={onTabChange}>
@@ -57,7 +60,7 @@ function CustomerDetail(props) {
           <CustomerForm
             form={form}
             isEditing={isEditing}
-            customerData={defaultData}
+            customerData={customerData}
           />
         </TabPane>
         <TabPane tab="Order history" key="orderHistory">
