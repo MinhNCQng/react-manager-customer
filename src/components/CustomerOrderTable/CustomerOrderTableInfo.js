@@ -1,46 +1,28 @@
-import { editAndRemoveActions, editingActions } from "../Layouts/CardLayout/CardLayoutActions";
+import { DatePicker } from "antd";
 
-const getCustomerOrderTableColumns = ({
-  onEditButtonCLicked,
-  onRemoveButtonCLicked,
-  onCancelButtonClicked,
-  onDoneButtonClicked,
-  isEditing,
-}) => [
+const customerOrderTableColumns = [
   {
     title: "Order id",
     dataIndex: "orderId",
     key: "orderId",
-    width:"25%",
-    editable: false,
+    width: "25%",
+    disabled: true,
   },
   {
     title: "Order date",
     dataIndex: "orderDate",
     key: "orderDate",
-    width:"25%",
-    editable: true,
+    width: "25%",
+    EditRender: DatePicker,
+    extraPropsEditComponent: { format: "DD/MM/YYYY" },
+    render: (text) => text.format("DD/MM/YYYY"),
   },
   {
     title: "Order status",
     dataIndex: "orderStatus",
     key: "orderStatus",
-    width:"25%",
-    editable: true,
-  },
-  {
-    title: "Action",
-    key: "action",
-    width:"25%",
-    render: (text, record) => {
-      if (!isEditing(record))
-        return editAndRemoveActions({
-          onEditButtonCLicked: () => onEditButtonCLicked(record),
-          onRemoveButtonCLicked: () => onRemoveButtonCLicked(record),
-        })[0];
-      return editingActions({onCancelButtonClicked: ()=>onCancelButtonClicked(record),onDoneButtonClicked: ()=>onDoneButtonClicked(record)})[0]
-    },
+    width: "25%",
   },
 ];
 
-export { getCustomerOrderTableColumns };
+export { customerOrderTableColumns };

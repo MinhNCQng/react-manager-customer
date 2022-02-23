@@ -16,33 +16,37 @@ const EditTable = ({
   dataSource,
   onDataChange,
   footer,
+  onRow,
+  canAddNewRow = true,
+  onDeleteRow,
+  onUpdateRow,
 }) => {
   const [initialFormValues, setInitialFormValues] = useState(() =>
     getFormData(dataSource)
   );
-  
+
   const [form] = Form.useForm();
-  const [editingKey, setEditingKey] = useState("")
+  const [editingKey, setEditingKey] = useState("");
   const [isNewRecord, setIsNewRecord] = useState(false);
-  const isEditing = (record) => record.key === editingKey
-  const cancelEdit = () => setEditingKey("")
-  useImperativeHandle(editTable.dataRef,()=>({
-    getTableValues(){
-      if (multiple) return getTableData(form.getFieldsValue())
-      if (isNewRecord) return getTableEditingData()
-      return tableData
+  const isEditing = (record) => record.key === editingKey;
+  const cancelEdit = () => setEditingKey("");
+  useImperativeHandle((editTable && editTable.dataRef), () => ({
+    getTableValues() {
+      if (multiple) return getTableData(form.getFieldsValue());
+      if (isNewRecord) return getTableEditingData();
+      return tableData;
     },
-    getValidateValues(){
+    getValidateValues() {
       return form.validateFields();
     },
-    setTableValues(tableData){
-      setInitialFormValues(getFormData(tableData))
-    }
-  }))
+    setTableValues(tableData) {
+      setInitialFormValues(getFormData(tableData));
+    },
+  }));
   const getTableEditingData = () => {
     const formValues = filterFormValuesWithKey(initialFormValues, editingKey);
-    return getTableData(formValues)
-  }
+    return getTableData(formValues);
+  };
   const mergedColumns = columns.map((col) => {
     return {
       ...col,
@@ -60,42 +64,45 @@ const EditTable = ({
     };
   });
   const onEditBtnClicked = (record) => {
-    setEditingKey(record.key)
+    setEditingKey(record.key);
   };
 
   const onDoneBtnClicked = (record) => {
-    form.validateFields().then(
-      ()=>{
-        setInitialFormValues(form.getFieldsValue())
+    form
+      .validateFields()
+      .then(() => {
+        setInitialFormValues(form.getFieldsValue());
         setIsNewRecord(false);
+        onUpdateRow?.(record.key)
         cancelEdit();
-      }
-    ).catch(error=> console.log(error))
-    
+      })
+      .catch((error) => console.log(error));
   };
   const onCancelBtnClicked = (record) => {
     if (isNewRecord) {
-      onRemoveBtnClicked(editingKey)
-      setIsNewRecord(false)
+      onRemoveBtnClicked(editingKey);
+      setIsNewRecord(false);
     }
-    cancelEdit()
+    cancelEdit();
   };
   const onRemoveBtnClicked = (recordKey) => {
     const newFormValues = filterFormValuesWithKey(initialFormValues, recordKey);
-    setInitialFormValues(newFormValues)
+    setInitialFormValues(newFormValues);
+    onDeleteRow?.(recordKey)
   };
   const onValuesChange = (formData) => {
-    onDataChange?.(getTableData(form.getFieldsValue()))
+    onDataChange?.(getTableData(form.getFieldsValue()));
+    onUpdateRow?.(Object.keys(formData)[0])
   };
   const onAddRecord = () => {
-    const newFormValues = {...initialFormValues};
-    const newRecordKey = uuidv4()
-    newFormValues[newRecordKey] = {}
-    setInitialFormValues(newFormValues)
-    if (!multiple) setEditingKey(newRecordKey)
-    setIsNewRecord(true)
+    const newFormValues = { ...initialFormValues };
+    const newRecordKey = uuidv4();
+    newFormValues[newRecordKey] = {};
+    setInitialFormValues(newFormValues);
+    if (!multiple) setEditingKey(newRecordKey);
+    setIsNewRecord(true);
   };
-  const disabledOperation = () => editingKey!=="";
+  const disabledOperation = () => editingKey !== "";
   const removeOperation = (record) => (
     <Row justify="space-around">
       <Col span={23}>
@@ -192,22 +199,31 @@ const EditTable = ({
     children,
     ...restProps
   }) => {
-    if (!record) return <td>{children}</td>
+    if (!record) return <td>{children}</td>;
+    const EditComponent = EditRender ? (
+      <EditRender disabled={disabled} {...extraPropsEditComponent} />
+     
+    ) : (
+      <Input {...extraPropsEditComponent} disabled={disabled} />
+    )
     return (
       <td {...restProps} style={{ verticalAlign: "top" }}>
         <Form.Item
           name={[record.key, dataIndex]}
-          style={{ margin: 0 }} 
+          style={{ margin: 0 }}
           rules={rules}
           initialValue={record[dataIndex] ? undefined : initialValue}
-          getValueFromEvent = {(data) => {onValueChange?.(data,form,{key:record.key,dataIndex:dataIndex}); return data } }
+          getValueFromEvent={(data) => {
+            onValueChange?.(data, form, {
+              key: record.key,
+              dataIndex: dataIndex,
+            });
+            if (data.target) return data.target.value;
+            return data;
+          }}
         >
           {editing ? (
-            EditRender ? (
-              <EditRender disabled={disabled} {...extraPropsEditComponent} />
-            ) : (
-              <Input {...extraPropsEditComponent} disabled={disabled} />
-            )
+            EditComponent
           ) : (
             <span>{children}</span>
           )}
@@ -215,12 +231,18 @@ const EditTable = ({
       </td>
     );
   };
-  const tableData = useMemo(()=>getTableData(initialFormValues),[initialFormValues]) 
-  useEffect(()=>{
-    setEditingKey("")
-    setIsNewRecord(false)
-  },[multiple])
-  useEffect(()=>{onDataChange(tableData)},[tableData])
+  const tableData = useMemo(
+    () => getTableData(initialFormValues),
+    [initialFormValues]
+  );
+  useEffect(() => {
+    setEditingKey("");
+    setIsNewRecord(false);
+  }, [multiple]);
+  useEffect(() => {
+    onDataChange?.(tableData);
+  }, [tableData]);
+  console.log(123)
   return (
     <Form
       form={form}
@@ -233,18 +255,21 @@ const EditTable = ({
         dataSource={tableData}
         components={tableData.length && { body: { cell: EditableCell } }}
         footer={footer}
+        onRow={onRow}
       />
-      <Row>
-        <Col>
-          <Button
-            type="primary"
-            onClick={onAddRecord}
-            disabled={!multiple && disabledOperation()}
-          >
-            Add a record
-          </Button>
-        </Col>
-      </Row>
+      {canAddNewRow && (
+        <Row>
+          <Col>
+            <Button
+              type="primary"
+              onClick={onAddRecord}
+              disabled={!multiple && disabledOperation()}
+            >
+              Add a record
+            </Button>
+          </Col>
+        </Row>
+      )}
     </Form>
   );
 };
@@ -271,12 +296,9 @@ const getTableData = (formData) => {
 function filterFormValuesWithKey(initialFormValues, recordKey) {
   const newFormValues = {};
   for (const [key, value] of Object.entries(initialFormValues)) {
-    if (key.toString() !== recordKey.toString())
-      newFormValues[key] = value;
+    if (key.toString() !== recordKey.toString()) newFormValues[key] = value;
   }
-  return newFormValues
+  return newFormValues;
 }
 
-
 export default EditTable;
-
