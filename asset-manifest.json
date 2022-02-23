@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/MinhNCQng/react-manager-customer/static/css/main.f96f238c.css",
+    "main.js": "/MinhNCQng/react-manager-customer/static/js/main.f02850db.js",
+    "static/js/787.1aac3e85.chunk.js": "/MinhNCQng/react-manager-customer/static/js/787.1aac3e85.chunk.js",
+    "index.html": "/MinhNCQng/react-manager-customer/index.html",
+    "main.f96f238c.css.map": "/MinhNCQng/react-manager-customer/static/css/main.f96f238c.css.map",
+    "main.f02850db.js.map": "/MinhNCQng/react-manager-customer/static/js/main.f02850db.js.map",
+    "787.1aac3e85.chunk.js.map": "/MinhNCQng/react-manager-customer/static/js/787.1aac3e85.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f96f238c.css",
+    "static/js/main.f02850db.js"
+  ]
+}
