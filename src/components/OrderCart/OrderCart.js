@@ -1,6 +1,6 @@
-import { Button, Col, Form, message, Row } from "antd";
-import { set } from "firebase/database";
+import { Button, Col, message, Row } from "antd";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import EditTable from "../EditTable/EditTable";
 import useEditTable from "../EditTable/useEditTable";
 import {
@@ -8,7 +8,7 @@ import {
   deleteItem,
   getCurrentDayString,
 } from "../Firebase/Firebase";
-import { orderCartTableColumns } from "./OrderCartTableInfo";
+import { getOrderCartTableColumns } from "./OrderCartTableInfo";
 
 const OrderCart = ({
   customerProfile,
@@ -16,6 +16,8 @@ const OrderCart = ({
   mode = "newOrder",
   initalCartProducts,
 }) => {
+  const products = useSelector(storeData=> storeData.products)
+  const orderCartTableColumns = getOrderCartTableColumns(products)
   const editTable = useEditTable();
   const onCartUpdate = () => {
     editTable
@@ -60,6 +62,7 @@ const OrderCart = ({
   };
   const [totalPrice,setTotalPrice] = useState(0)
   const onDataChange = (cartProducts) => {
+    if (!cartProducts) return 0;
     const total = cartProducts.reduce((total,cartProduct)=> total+cartProduct.orderUnitPrice*(cartProduct.orderQuantum || 0),0)
     setTotalPrice(total)
   }
@@ -118,6 +121,7 @@ const OrderCart = ({
 export default OrderCart;
 
 function pushOrders(cartProducts, orderId, messageWhenCompleted) {
+  console.log(cartProducts)
   for (const cartProduct of cartProducts) {
     addNewItem(
       `/orders/${orderId}/productOrderedList/`,

@@ -1,5 +1,5 @@
 import { Form, Row } from "antd";
-import ProfileSelector from "../Selector/ProfileSelector";
+import ProfileSelector from "../ProfileSelector/ProfileSelector";
 import OrderProfileFormItem from "./OrderProfileFormItem";
 
 const OrderProfileForm = ({customerProfile, onCustomerProfileSelected}) => {
@@ -12,7 +12,6 @@ const OrderProfileForm = ({customerProfile, onCustomerProfileSelected}) => {
   ];
 
   const onProfileChange = (value) => {
-
     onCustomerProfileSelected(value);
   };
   return (

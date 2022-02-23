@@ -5,92 +5,106 @@ import {
   EditOutlined,
 } from "@ant-design/icons/lib/icons";
 import { Form, Table, Row, Col, Button, Input } from "antd";
-import { useState, useEffect, useRef, useImperativeHandle } from "react";
-import { v4 as uuidv4  } from "uuid";
+import { useState, useEffect, useImperativeHandle, useMemo } from "react";
+import { v4 as uuidv4 } from "uuid";
 import "./EditTable.css";
 
-const EditTable = ({editTable, multiple, columns, dataSource, onDataChange, footer}) => {
-  const setState = useState(false)[1];
-  const tableDataRef= useRef(dataSource || []);
-  const setTableData = (tableData) => {
-    tableDataRef.current = [...tableData];
-    onDataChange?.(tableDataRef.current);
-  };
+const EditTable = ({
+  editTable,
+  multiple,
+  columns,
+  dataSource,
+  onDataChange,
+  footer,
+}) => {
+  const [initialFormValues, setInitialFormValues] = useState(() =>
+    getFormData(dataSource)
+  );
+  
   const [form] = Form.useForm();
-  const [editingKey, setEditingKey] = useState("");
-  const isEdititing = (record) => record.key === editingKey;
-  const disabledOperation = () => editingKey !== ""
-  const cancelEdit = ()=> setEditingKey("")
-  useImperativeHandle(editTable.dataRef, () => ({
-    getTableData() {
-      return tableDataRef.current;
+  const [editingKey, setEditingKey] = useState("")
+  const [isNewRecord, setIsNewRecord] = useState(false);
+  const isEditing = (record) => record.key === editingKey
+  const cancelEdit = () => setEditingKey("")
+  useImperativeHandle(editTable.dataRef,()=>({
+    getTableValues(){
+      if (multiple) return getTableData(form.getFieldsValue())
+      if (isNewRecord) return getTableEditingData()
+      return tableData
     },
-    getValidate(){
-      return form.validateFields()
+    getValidateValues(){
+      return form.validateFields();
     },
-    setTableValues(tableValues){
-      tableDataRef.current = tableValues;
-      updateNewFormData();
-
+    setTableValues(tableData){
+      setInitialFormValues(getFormData(tableData))
     }
-  }));
-
+  }))
+  const getTableEditingData = () => {
+    const formValues = filterFormValuesWithKey(initialFormValues, editingKey);
+    return getTableData(formValues)
+  }
   const mergedColumns = columns.map((col) => {
     return {
       ...col,
       onCell: (record) => ({
         record,
         dataIndex: col.dataIndex,
-        editing: multiple ? true: isEdititing(record),
-        EditRender:col.EditRender,
+        editing: multiple ? true : isEditing(record),
+        EditRender: col.EditRender,
         rules: col.rules,
         disabled: col.disabled,
-        extraPropsEditComponent:col.extraPropsEditComponent
+        extraPropsEditComponent: col.extraPropsEditComponent,
+        initialValue: col.initialValue,
+        onValueChange: col.onValueChange,
       }),
     };
   });
   const onEditBtnClicked = (record) => {
     setEditingKey(record.key)
-  }
-  const rerenderTable = () =>{
-    setState(prev=>!prev)
-  }
+  };
+
   const onDoneBtnClicked = (record) => {
-    form
-      .validateFields()
-      .then(() => {
-        const formData = form.getFieldsValue();
-        saveData(formData);
+    form.validateFields().then(
+      ()=>{
+        setInitialFormValues(form.getFieldsValue())
+        setIsNewRecord(false);
         cancelEdit();
-      })
-      .catch((error) => console.log(error));
+      }
+    ).catch(error=> console.log(error))
+    
   };
   const onCancelBtnClicked = (record) => {
+    if (isNewRecord) {
+      onRemoveBtnClicked(editingKey)
+      setIsNewRecord(false)
+    }
     cancelEdit()
-  }
-  const onRemoveBtnClicked = (record) => {
-    deleteRecord(record)
-    rerenderTable()
-  }
+  };
+  const onRemoveBtnClicked = (recordKey) => {
+    const newFormValues = filterFormValuesWithKey(initialFormValues, recordKey);
+    setInitialFormValues(newFormValues)
+  };
   const onValuesChange = (formData) => {
-    saveData(formData);
-  }
-  const onAddRecord = () =>{
-    const newDataKey = uuidv4()
-    const newTableData = [...tableDataRef.current]
-    newTableData.push({key:newDataKey})
-    setTableData(newTableData)
-    setEditingKey(newDataKey)
-  }
-  const updateNewFormData = ()=>{
-    const formData = getDataForm(tableDataRef.current)
-    form.setFieldsValue(formData)
-    rerenderTable()
-  }
-  const removeOperation = (record) =>  (
+    onDataChange?.(getTableData(form.getFieldsValue()))
+  };
+  const onAddRecord = () => {
+    const newFormValues = {...initialFormValues};
+    const newRecordKey = uuidv4()
+    newFormValues[newRecordKey] = {}
+    setInitialFormValues(newFormValues)
+    if (!multiple) setEditingKey(newRecordKey)
+    setIsNewRecord(true)
+  };
+  const disabledOperation = () => editingKey!=="";
+  const removeOperation = (record) => (
     <Row justify="space-around">
       <Col span={23}>
-        <Button block key="enableEditing" onClick={()=>onRemoveBtnClicked(record)} danger>
+        <Button
+          block
+          key="enableEditing"
+          onClick={() => onRemoveBtnClicked(record.key)}
+          danger
+        >
           <DeleteOutlined />
           Remove
         </Button>
@@ -100,29 +114,50 @@ const EditTable = ({editTable, multiple, columns, dataSource, onDataChange, foot
   const editOperation = (record) => (
     <Row justify="space-around" style={{ minWidth: "220px" }}>
       <Col key={1} span={11}>
-        <Button block key="enableEditing" onClick={()=>onEditBtnClicked(record)} disabled={disabledOperation()}>
+        <Button
+          block
+          key="enableEditing"
+          onClick={() => onEditBtnClicked(record)}
+          disabled={disabledOperation()}
+        >
           <EditOutlined />
           Edit
         </Button>
       </Col>
       <Col key={2} span={11}>
-        <Button block key="deleteRecord" onClick={()=>onRemoveBtnClicked(record)} danger type="primary" disabled={disabledOperation()}>
+        <Button
+          block
+          key="deleteRecord"
+          onClick={() => onRemoveBtnClicked(record.key)}
+          danger
+          type="primary"
+          disabled={disabledOperation()}
+        >
           <DeleteOutlined />
           Remove
         </Button>
       </Col>
     </Row>
   );
-  const editingOperation = (record) =>  (
+  const editingOperation = (record) => (
     <Row justify="space-around">
       <Col span={11}>
-        <Button block type="primary" onClick={()=>onDoneBtnClicked(record)} key="editDone" >
+        <Button
+          block
+          type="primary"
+          onClick={() => onDoneBtnClicked(record)}
+          key="editDone"
+        >
           <CheckOutlined />
           Done!
         </Button>
       </Col>
       <Col span={11}>
-        <Button block onClick={()=>onCancelBtnClicked(record)} key="cancelEdit">
+        <Button
+          block
+          onClick={() => onCancelBtnClicked(record)}
+          key="cancelEdit"
+        >
           <CloseOutlined />
           Cancel
         </Button>
@@ -136,7 +171,7 @@ const EditTable = ({editTable, multiple, columns, dataSource, onDataChange, foot
     width: 220,
     render: (_, record) => {
       if (!multiple) {
-        if (isEdititing(record)) return editingOperation(record);
+        if (isEditing(record)) return editingOperation(record);
         return editOperation(record);
       } else {
         return removeOperation(record);
@@ -152,83 +187,96 @@ const EditTable = ({editTable, multiple, columns, dataSource, onDataChange, foot
     editing,
     disabled,
     extraPropsEditComponent,
+    initialValue,
+    onValueChange,
     children,
     ...restProps
   }) => {
-    const changeSameRowData = (rowData) => {
-      const newRowData = { [record.key]: { ...rowData } };
-      saveData(newRowData);
-    };
+    if (!record) return <td>{children}</td>
     return (
       <td {...restProps} style={{ verticalAlign: "top" }}>
-        {editing ? (
-          <Form.Item
-            name={[record.key, dataIndex]}
-            style={{ margin: 0 }}
-            rules={rules}
-          >
-            {EditRender ? (
-              <EditRender
-                changeSameRowData={changeSameRowData}
-                disabled={disabled}
-                {...extraPropsEditComponent}
-              />
+        <Form.Item
+          name={[record.key, dataIndex]}
+          style={{ margin: 0 }} 
+          rules={rules}
+          initialValue={record[dataIndex] ? undefined : initialValue}
+          getValueFromEvent = {(data) => {onValueChange?.(data,form,{key:record.key,dataIndex:dataIndex}); return data } }
+        >
+          {editing ? (
+            EditRender ? (
+              <EditRender disabled={disabled} {...extraPropsEditComponent} />
             ) : (
               <Input {...extraPropsEditComponent} disabled={disabled} />
-            )}
-          </Form.Item>
-        ) : (
-          children
-        )}
+            )
+          ) : (
+            <span>{children}</span>
+          )}
+        </Form.Item>
       </td>
     );
   };
+  const tableData = useMemo(()=>getTableData(initialFormValues),[initialFormValues]) 
   useEffect(()=>{
-    updateNewFormData()
-  },[])
-  const deleteRecord = (record) => {
-    const deleteRecordKey = record.key;
-    const newTableData = [...tableDataRef.current]
-    const dataDeleteIndex = newTableData.findIndex(data => data.key === deleteRecordKey);
-    newTableData.splice(dataDeleteIndex,1)
-    setTableData(newTableData)
-  }
-  const saveData = (formData) =>{
-      const dataChangeKeys = Object.keys(formData);
-      const newTableData = [...tableDataRef.current];
-      for (const dataKey of dataChangeKeys){
-          const dataChangeIndex = newTableData.findIndex(data => data.key.toString() === dataKey);
-          const dataChange = newTableData[dataChangeIndex]
-          newTableData[dataChangeIndex] = {...dataChange,...formData[dataKey]}
-          setTableData(newTableData)
-      }
-      updateNewFormData()
-
-  }
+    setEditingKey("")
+    setIsNewRecord(false)
+  },[multiple])
+  useEffect(()=>{onDataChange(tableData)},[tableData])
   return (
-    <Form form={form}  component={false} onValuesChange = {multiple && onValuesChange} >
+    <Form
+      form={form}
+      component={false}
+      onValuesChange={multiple && onValuesChange}
+      initialValues={initialFormValues}
+    >
       <Table
         columns={mergedColumns}
-        dataSource={tableDataRef.current}
-        components={{ body: { cell: EditableCell } }}
+        dataSource={tableData}
+        components={tableData.length && { body: { cell: EditableCell } }}
         footer={footer}
       />
       <Row>
         <Col>
-        <Button type="primary" onClick={onAddRecord} disabled={!multiple && disabledOperation()} >Add a record</Button>
+          <Button
+            type="primary"
+            onClick={onAddRecord}
+            disabled={!multiple && disabledOperation()}
+          >
+            Add a record
+          </Button>
         </Col>
       </Row>
     </Form>
   );
 };
 
-const getDataForm = (dataSource) => {
-    const dataForm = {}
-    if (!dataSource) return dataForm;
-    for (const data of dataSource){
-        dataForm[data.key] = data
-    }
-    return dataForm
+const getFormData = (dataSource) => {
+  const formData = {};
+  if (!dataSource) return formData;
+  for (const data of dataSource) {
+    formData[data.key] = data;
+  }
+  return formData;
+};
+
+const getTableData = (formData) => {
+  const tableData = [];
+  if (!formData) return tableData;
+  for (const [key, value] of Object.entries(formData)) {
+    const newData = { key: key, ...value };
+    tableData.push(newData);
+  }
+  return tableData;
+};
+
+function filterFormValuesWithKey(initialFormValues, recordKey) {
+  const newFormValues = {};
+  for (const [key, value] of Object.entries(initialFormValues)) {
+    if (key.toString() !== recordKey.toString())
+      newFormValues[key] = value;
+  }
+  return newFormValues
 }
 
+
 export default EditTable;
+

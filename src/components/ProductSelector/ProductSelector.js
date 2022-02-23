@@ -3,23 +3,18 @@ import { useSelector } from "react-redux";
 
 const { Option } = Select;
 
-const ProductSelector = ({ onProductChange, defaultProductName, value, onChange, changeSameRowData }) => {
+const ProductSelector = ({ value, onChange }) => {
 
   const products = useSelector((storeData) => storeData.products);
-  const onChangeDefault = (selectedIndex) => {
-    const selectedProduct = products[selectedIndex]
-    onChange?.(selectedProduct.name)
-    changeSameRowData?.({
-      orderUnitPrice:selectedProduct.price,
-      orderProductId:selectedProduct.productId,
-    })
+  const onChangeDefault = (productId) => {
+    onChange?.(productId)
   };
   return (
     <Select
-      defaultValue={ value || defaultProductName}
       showSearch
       style={{ width: "190px" }}
       placeholder="Search to select product"
+      value={value}
       filterOption={(input, option) =>
         option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
       }
@@ -32,7 +27,7 @@ const ProductSelector = ({ onProductChange, defaultProductName, value, onChange,
 
     >
       {products.map((product, index) => (
-        <Option key={index} >
+        <Option key={index} value={product.productId} >
           {product.name}
         </Option>
       ))}

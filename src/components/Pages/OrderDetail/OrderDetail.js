@@ -12,7 +12,6 @@ const cartProductsAdaptive = (productOrderedList, products) => {
             orderProductId: orderItem.orderProductId,
             orderQuantum: orderItem.orderQuantum,
             orderUnitPrice: orderItem.orderUnitPrice,
-            orderProductName: products.find(product => product.productId === orderItem.orderProductId).name
         }
         cartProducts.push(cartProduct)
     }
