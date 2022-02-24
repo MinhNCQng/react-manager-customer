@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/react-manager-customer/static/css/main.f96f238c.css",
-    "main.js": "/react-manager-customer/static/js/main.61ecb2d7.js",
+    "main.js": "/react-manager-customer/static/js/main.2717d659.js",
     "static/js/787.1aac3e85.chunk.js": "/react-manager-customer/static/js/787.1aac3e85.chunk.js",
     "index.html": "/react-manager-customer/index.html",
     "main.f96f238c.css.map": "/react-manager-customer/static/css/main.f96f238c.css.map",
-    "main.61ecb2d7.js.map": "/react-manager-customer/static/js/main.61ecb2d7.js.map",
+    "main.2717d659.js.map": "/react-manager-customer/static/js/main.2717d659.js.map",
     "787.1aac3e85.chunk.js.map": "/react-manager-customer/static/js/787.1aac3e85.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f96f238c.css",
-    "static/js/main.61ecb2d7.js"
+    "static/js/main.2717d659.js"
   ]
 }
