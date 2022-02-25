@@ -6,7 +6,6 @@ import { addNewItem } from "../../Firebase/Firebase";
 function NewCustomer(props) {
   const [form] = Form.useForm();
   const isEditing = true;
-
   const onSubmitButtonClicked = ()=>{
     form
       .validateFields()
@@ -22,8 +21,8 @@ function NewCustomer(props) {
   }
   const actions = addingNewAction({onSubmitButtonClicked,onResetButtonClicked})
   return (
-    <CardLayout cardTitle={"Add a new customer !"} actions={actions} back>
-      <CustomerForm form={form} isEditing={isEditing} />
+    <CardLayout cardTitle={"Add a new customer !"} back>
+      <CustomerForm form={form} isEditing={isEditing} actions = {actions} newRegister/>
     </CardLayout>
   );
 }

@@ -1,5 +1,5 @@
-import { Tabs } from "antd";
-import { useState, useEffect } from "react";
+import { Tabs, Form } from "antd";
+import { useState } from "react";
 import CustomerForm from "../../CustomerForm/CustomerForm";
 import { useParams } from "react-router-dom";
 import CardLayout from "../../Layouts/CardLayout/CardLayout";
@@ -8,7 +8,7 @@ import CustomerOrderTable from "../../CustomerOrderTable/CustomerOrderTable";
 
 const { TabPane } = Tabs;
 function CustomerDetail(props) {
-  const [tabKey, setTabKey] = useState("profile")
+  const  setTabKey = useState("profile")[1]
   const params = useParams();
   const customerId = params.customerId;
   const customerData = useSelector((storeData) =>
@@ -16,6 +16,7 @@ function CustomerDetail(props) {
       (customer) => customer.customerId === customerId
     )
   );
+  const [form] = Form.useForm()
   const onTabChange = (key) =>{
     setTabKey(key)
   }
@@ -23,7 +24,7 @@ function CustomerDetail(props) {
     <CardLayout cardTitle={"Customer detail"} back>
       <Tabs defaultActiveKey="profile" onChange={onTabChange}>
         <TabPane tab="Profile" key="profile">
-          <CustomerForm  customerData={customerData}  customerId={customerId}
+          <CustomerForm  customerData={customerData}  customerId={customerId} form={form}
           />
         </TabPane>
         <TabPane tab="Order history" key="orderHistory">

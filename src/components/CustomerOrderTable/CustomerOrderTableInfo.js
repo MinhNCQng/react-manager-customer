@@ -13,8 +13,8 @@ const customerOrderTableColumns = [
     dataIndex: "orderDate",
     key: "orderDate",
     width: "25%",
-    EditRender: DatePicker,
-    extraPropsEditComponent: { format: "DD/MM/YYYY" },
+    InputType: DatePicker,
+    editComponentProps: { format: "DD/MM/YYYY" },
     render: (text) => text.format("DD/MM/YYYY"),
   },
   {

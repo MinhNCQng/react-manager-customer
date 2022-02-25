@@ -1,34 +1,17 @@
 import { Form, Row } from "antd";
-import React, { useState } from "react";
-import { updateItem } from "../Firebase/Firebase";
-import { editedActions, editingActions } from "../Layouts/CardLayout/CardLayoutActions";
+import React from "react";
+import CustomerDataActions from "./CustomerFormAction";
 import { labelAndNameFormFields } from "./CustomerFormFields";
+import CustomerFormHandle from "./CustomerFormHandle";
 import { customerFormRules, formItemLayout } from "./CustomerFormInfo";
 import CustomerFormItem from "./CustomerFormItem";
+import useCustomerFormState from "./useCustomerFormState";
 
-function CustomerForm({ customerData: customerInfo, customerId }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [form] = Form.useForm();
-  const [customerData, setCustomerData] = useState(customerInfo);
-  const onEditButtonCLicked = (e) => {
-    setIsEditing(true);
-    setCustomerData(form.getFieldsValue());
-  };
-  const onCancelButtonClicked = (e) => {
-    setIsEditing(false);
-    form.setFieldsValue(customerData);
-  };
-  const onDoneButtonClicked = (e) => {
-    const newCustomerData = form.getFieldsValue();
-    updateItem(`/customers/${customerId}`, newCustomerData);
-    setIsEditing(false);
-  };
-  const customerDataActions = isEditing
-    ? editingActions({
-        onCancelButtonClicked: onCancelButtonClicked,
-        onDoneButtonClicked: onDoneButtonClicked,
-      })
-    : editedActions({ onEditButtonCLicked: onEditButtonCLicked });
+function CustomerForm({ customerData: customerInfo, customerId, actions, form,newRegister }) {
+  const customerFormState = useCustomerFormState(customerInfo, newRegister);
+  const { isEditing, customerData } = customerFormState;
+  const customerFormHandle = CustomerFormHandle({...customerFormState, customerId,form});
+  const customerDataActions = actions || CustomerDataActions({ isEditing, ...customerFormHandle});
   return (
     <>
       <Form form={form} {...formItemLayout} initialValues={customerData}>
@@ -44,7 +27,9 @@ function CustomerForm({ customerData: customerInfo, customerId }) {
           ))}
         </Row>
       </Form>
-      {customerDataActions.map((action, index) => <React.Fragment key={index}>{action}</React.Fragment>)}
+      {customerDataActions.map((action, index) => (
+        <React.Fragment key={index}>{action}</React.Fragment>
+      ))}
     </>
   );
 }

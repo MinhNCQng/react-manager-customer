@@ -17,15 +17,14 @@ const addNewItem = (pathToItem, value, disableToast = false) => {
   
 };
 
-const updateItem = (pathToItem, value) => {
+const updateItem = (pathToItem, value,disabledMessage) => {
     update(ref(fbStore, pathToItem), value);
-    message.success("Update completed!")
+    !disabledMessage && message.success("Update completed!")
 };
 
 const deleteItem = (pathToItem) => {
     set(ref(fbStore,pathToItem),{})
 }
-
 
 const getCurrentDayString = ()=> 
   new Date().toLocaleDateString('en-GB',{

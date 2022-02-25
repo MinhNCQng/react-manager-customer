@@ -24,7 +24,6 @@ const ProductSelector = ({ value, onChange }) => {
           .localeCompare(optionB.children.toLowerCase())
       }
       onChange={onChangeDefault}
-
     >
       {products.map((product, index) => (
         <Option key={index} value={product.productId} >

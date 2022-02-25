@@ -1,5 +1,4 @@
-import { Button, InputNumber } from "antd";
-import React from "react";
+import { InputNumber } from "antd";
 import ProductSelector from "../ProductSelector/ProductSelector";
 
 const checkNumberGreaterThanZero = (_, value) => {
@@ -13,7 +12,7 @@ const getOrderCartTableColumns = (products) => [
     title: "Order product",
     dataIndex: "orderProductId",
     key: "orderProductId",
-    EditRender: ProductSelector,
+    InputType: ProductSelector,
     onValueChange: (dataChange, form, { key, dataIndex }) => {
       const selectedProduct = products.find(
         (product) => product.productId === dataChange
@@ -22,23 +21,22 @@ const getOrderCartTableColumns = (products) => [
         { name: [key, "orderUnitPrice"], value: selectedProduct.price },
       ]);
     },
-    rules: [{ required: true, message: "Please select a product" }],
+    labelItemProps:{rules: [{ required: true, message: "Please select a product" }]},
   },
   {
     title: "Unit price",
     dataIndex: "orderUnitPrice",
     key: "orderUnitPrice",
     disabled: true,
-    EditRender: InputNumber,
+    InputType: InputNumber,
   },
   {
     title: "Quantum",
     dataIndex: "orderQuantum",
     key: "orderQuantum",
-    EditRender: InputNumber,
-    initialValue: 1,
-    extraPropsEditComponent: { min: 1, max: 10 },
-    rules: [{ required: true, validator: checkNumberGreaterThanZero }],
+    InputType: InputNumber,
+    editComponentProps: { min: 1, max: 10 },
+    labelItemProps:{rules: [{ required: true, validator: checkNumberGreaterThanZero }], initialValue: 1},
   },
 ];
 
