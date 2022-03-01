@@ -4,7 +4,7 @@ function CustomerFormItem({ label, name, isEditing, rules }) {
   return (
     <Col span={12}>
       <Form.Item label={label} name={name} rules = {rules}>
-        <Input disabled={!isEditing} />
+        <Input disabled={!isEditing}/>
       </Form.Item>
     </Col>
   );

@@ -5,13 +5,17 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { HashRouter as Router } from "react-router-dom";
 import StoreProvider from "./store/StoreProvider";
+import enUS from 'antd/lib/locale/en_US';
+import { ConfigProvider } from "antd";
 
 ReactDOM.render(
   <React.StrictMode>
     <StoreProvider>
-      <Router>
-        <App />
-      </Router>
+      <ConfigProvider locale={enUS}>
+        <Router>
+          <App />
+        </Router>
+      </ConfigProvider>
     </StoreProvider>
   </React.StrictMode>,
   document.getElementById("root")

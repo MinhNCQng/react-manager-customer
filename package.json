@@ -5,6 +5,8 @@
   "homepage": "https://MinhNCQng.github.io/react-manager-customer/",
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
+    "@ant-design/pro-form": "^1.55.0",
+    "@ant-design/pro-table": "^2.64.1",
     "@reduxjs/toolkit": "^1.7.2",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
