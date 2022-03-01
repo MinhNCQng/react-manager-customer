@@ -1,11 +1,10 @@
-import { Col, Form, Input } from "antd";
+import ProForm, { ProFormText } from "@ant-design/pro-form";
+import { Col } from "antd";
 
 function CustomerFormItem({ label, name, isEditing, rules }) {
   return (
     <Col span={12}>
-      <Form.Item label={label} name={name} rules = {rules}>
-        <Input disabled={!isEditing}/>
-      </Form.Item>
+         <ProFormText  label={label} name={name} disabled={!isEditing} rules={rules} placeholder="" />
     </Col>
   );
 }

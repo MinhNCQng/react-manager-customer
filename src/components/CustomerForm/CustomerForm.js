@@ -1,12 +1,11 @@
 import ProForm from "@ant-design/pro-form";
-import { Form, Row } from "antd";
+import { Row } from "antd";
 import React from "react";
 import CustomerDataActions from "./CustomerFormAction";
 import { labelAndNameFormFields } from "./CustomerFormFields";
 import CustomerFormHandle from "./CustomerFormHandle";
 import { customerFormRules, formItemLayout } from "./CustomerFormInfo";
 import CustomerFormItem from "./CustomerFormItem";
-import ProCustomerForm from "./ProCustomerForm";
 import useCustomerFormState from "./useCustomerFormState";
 
 function CustomerForm({
@@ -33,11 +32,15 @@ function CustomerForm({
         initialValues={customerData}
         {...formItemLayout}
         layout="horizontal"
-        
+        submitter={{
+          render: (props, doms) => {
+            return customerDataActions;
+          },
+        }}
       >
         <Row wrap>
           {labelAndNameFormFields.map(({ label, name }, index) => (
-            <ProCustomerForm
+            <CustomerFormItem
               rules={customerFormRules[name]}
               key={index}
               label={label}
@@ -47,9 +50,6 @@ function CustomerForm({
           ))}
         </Row>
       </ProForm>
-      {customerDataActions.map((action, index) => (
-        <React.Fragment key={index}>{action}</React.Fragment>
-      ))}
     </>
   );
 }

@@ -3,7 +3,7 @@ const formItemLayout = {
     span: 6,
   },
   wrapperCol: {
-    span: 12,
+    span: 11,
   },
 };
 
