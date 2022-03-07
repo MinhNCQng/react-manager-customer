@@ -8,6 +8,7 @@ function OrderExpandTable(props) {
     <>
       <ProFormDigit
         label="Discount"
+        disabled={props.disabled}
         name={[rowId, "orderDiscount"]}
         width="150px"
         placeholder={"Discount"}

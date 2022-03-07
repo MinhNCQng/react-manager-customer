@@ -23,7 +23,7 @@ const proEditOrderColumns = ({ getProductById, products, getFinalPrice }) => {
         rules: [{ required: true, message: "Vui lòng nhập dùm cái đi" }],
       },
       render: (selectedProductId, record, _, action) => {
-        return getProductById(selectedProductId).name;
+        return getProductById(selectedProductId)?.name;
       },
     },
     {
@@ -59,7 +59,6 @@ const proEditOrderColumns = ({ getProductById, products, getFinalPrice }) => {
         newData.orderFinalPrice = getFinalPrice(newData)
         return newData
       },
-      editable: true,
       renderFormItem: (record, rowInfo, form) => {
         const rowId = rowInfo.recordKey;
         return <InputNumber placeholder={"place holder"} />;
@@ -76,6 +75,7 @@ const proEditOrderColumns = ({ getProductById, products, getFinalPrice }) => {
   const dependColumns = [
     ...columns,
   ]
+  
   return [columns,dependColumns];
 };
 export default proEditOrderColumns;

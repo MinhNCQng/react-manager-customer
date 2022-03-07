@@ -8,6 +8,7 @@ function AccessoryOrderTable({
   getProductById,
   products,
   getFinalPrice,
+  disabled,
 }) {
   const [columns] = proEditOrderColumns({
     getProductById,
@@ -24,7 +25,6 @@ function AccessoryOrderTable({
       newData.orderFinalPrice = getFinalPrice(newData)
       return newData
     },
-    editable: true,
     renderFormItem: (record, rowInfo, form) => {
       const rowId = rowInfo.recordKey;
       return <InputNumber placeholder={"place holder"} />;
@@ -33,6 +33,7 @@ function AccessoryOrderTable({
   columns.splice(columns.length-2,1,finalPriceColumns)
   return (
     <EditTable
+      disabled={disabled}
       columns={columns}
       dependColumns={columns}
       dataSource={value}

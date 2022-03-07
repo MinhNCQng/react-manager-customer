@@ -1,9 +1,12 @@
+import { EditOutlined } from "@ant-design/icons/lib/icons";
 import { EditableProTable } from "@ant-design/pro-table";
 import { Button } from "antd";
 import deepcopy from "deepcopy";
 
 const EditTable = ({
+  form,
   columns,
+  disabled,
   dependColumns,
   dataSource,
   onDataChange,
@@ -81,8 +84,9 @@ const EditTable = ({
         expandedRowRender: expandableRowRender,
       }}
       editable={{
+        form:form,
         type: "multiple",
-        editableKeys,
+        editableKeys: disabled ? [] : editableKeys,
         saveText: "save",
         cancelText: "cancel",
         deleteText: "delete",
