@@ -1,7 +1,6 @@
 import { useSelector } from "react-redux";
 import EditTable from "../MinhProEditTable/EditTable";
 import OrderExpandTable from "./OrderExpandTable";
-
 import proEditOrderColumns from "./proEditOrderColumns";
 import proEditOrderTableHandler from "./proEditOrderTableHandler";
 

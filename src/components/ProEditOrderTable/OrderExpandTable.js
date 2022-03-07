@@ -1,6 +1,5 @@
 import { ProFormDigit } from "@ant-design/pro-form";
 import { Divider, Form } from "antd";
-
 import AccessoryOrderTable from "./AccessoryOrderTable";
 
 function OrderExpandTable(props) {
