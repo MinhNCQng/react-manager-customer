@@ -60,8 +60,7 @@ const NewOrder = (props) => {
             <OrderProfileForm customerProfile = {customerProfile} onCustomerProfileSelected = {onCustomerProfileSelected}/>
           </TabPane>
           <TabPane tab="New order" key={"newOrder"}>
-            
-            <ProEditOrderTable customerProfile = {customerProfile} dataSource={cartProduct} setDataSource={setCartProduct} />
+            <ProEditOrderTable customerProfile = {customerProfile} dataSource={cartProduct} onDataChange={(cartProducts) => setCartProduct(cartProducts)} />
             <CartButton onButtonClick={onButtonClick} text="Order"/>
           </TabPane>
         </Tabs>

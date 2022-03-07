@@ -1,36 +1,33 @@
 import { ProFormDigit } from "@ant-design/pro-form";
 import { EditableProTable } from "@ant-design/pro-table";
-import { Button } from "antd";
+import { Button, Divider } from "antd";
+import Form from "antd/lib/form/Form";
+import { stringify } from "uuid";
+import ExpandTable from "./ExpandTable";
 
 import proEditOrderColumns from "./proEditOrderColumns";
 import proEditOrderTableHandler from "./proEditOrderTableHandler";
+import SmallEditTable from "./SmallEditTable";
 import useProEditOrderTableState from "./useProEditOrderTableState";
 
-function ProEditOrderTable({ customerProfile, dataSource, setDataSource}) {
-  const proEditOrderTableState = useProEditOrderTableState({dataSource});
-  const {
-    products,
-    form,
-    editableKeys,
-  } = proEditOrderTableState;
-  const {
-    isEditing,
-    setFinalPrice,
+function ProEditOrderTable({ customerProfile, dataSource, onDataChange }) {
+  const proEditOrderTableState = useProEditOrderTableState({ dataSource });
+  const { products, form, editableKeys } = proEditOrderTableState;
+  const { isEditing, getProductById, getFinalPrice } = proEditOrderTableHandler(
+    {
+      ...proEditOrderTableState,
+      dataSource,
+      onDataChange,
+    }
+  );
+
+  const [columns,mergedColumns] = proEditOrderColumns({
     getProductById,
-    updateRowData,
+    products,
     getFinalPrice,
-    updateFinalPrice,
-    updateFormItem,
-    shouldUpdateFinalPrice,
-    updateFormDataDependence,
-  } = proEditOrderTableHandler({...proEditOrderTableState,dataSource,setDataSource});
+  });
 
   
-  const columns = proEditOrderColumns({
-    getProductById,
-    updateRowData,
-    products,
-  });
   if (!customerProfile) return <p>Please select a customer profile </p>;
   return (
     <EditableProTable
@@ -42,22 +39,17 @@ function ProEditOrderTable({ customerProfile, dataSource, setDataSource}) {
         position: "top",
         newRecordType: "dataSource",
         creatorButtonText: "Add new order",
-        record: () => {
-          const newRow = {
-            id: Date.now(),
-          };
-
-          return newRow;
-        },
+        record: () => ({
+          id: Date.now(),
+        }),
       }}
-      components={{ body: {} }}
       toolBarRender={() => {
         return [
           <Button
             type="primary"
             key="save"
             onClick={() => {
-              console.log(dataSource,editableKeys);
+              console.log(dataSource, editableKeys);
             }}
           >
             Cái này là cái nút trên cùng
@@ -69,13 +61,19 @@ function ProEditOrderTable({ customerProfile, dataSource, setDataSource}) {
         expandedRowRender: (record, ...props) => {
           const rowId = record.id;
           return (
-            <ProFormDigit
-              label="Discount"
-              name={[rowId, "orderDiscount"]}
-              disabled={!isEditing(rowId)}
-              width="150px"
-              placeholder={"Discount"}
-            />
+            <>
+              <ProFormDigit
+                label="Discount"
+                name={[rowId, "orderDiscount"]}
+                disabled={!isEditing(rowId)}
+                width="150px"
+                placeholder={"Discount"}
+              />
+              <Divider orientation="left" style={{ paddingRight: 500 }}>
+                Thông tin phụ kiện
+              </Divider>
+              <ExpandTable {...{products,getProductById,getFinalPrice} } form={form} rowId={rowId}/>
+            </>
           );
         },
       }}
@@ -87,23 +85,61 @@ function ProEditOrderTable({ customerProfile, dataSource, setDataSource}) {
         cancelText: "cancel",
         deleteText: "delete",
         actionRender: (row, record, defaultDoms) => {
-          return null;
+          return [defaultDoms.delete];
         },
         onValuesChange: (record, recordList) => {
-          setDataSource(recordList)
+          const dataChange = record;
           const rowId = record?.id;
-          if (!record) return;
-          updateFormDataDependence(rowId);
-          const isEditedFinalPrice = shouldUpdateFinalPrice(rowId, record);
-          if (!isEditedFinalPrice) {
-            updateFinalPrice(rowId);
+          if (!record) {
+            return onDataChange(recordList);
           }
-          updateFormItem(rowId);
+          const recordIndex = recordList.findIndex(
+            (record) => record.id === rowId
+          );
+          let newData = { ...dataChange };
+          let prevDataSource = {
+            ...dataSource.find((row) => row.id === rowId),
+          };
+          if (record) {
+            while (true) {
+              const tempNewData = { ...newData };
+              let isHasChange = false;
+              Object.keys(newData).forEach((dataIndex) => {
+                const col = mergedColumns.find((col) => col.dataIndex === dataIndex);
+                if (!col) {
+                  return;
+                }
+                const isColShouldUpdate = checkShouldUpdate(
+                  dataIndex,
+                  newData,
+                  prevDataSource,
+                  col
+                );
+                if (isColShouldUpdate) {
+                  isHasChange = true;
+                  col.onDependChange(newData);
+                }
+              });
+              if (!isHasChange) break;
+              prevDataSource = { ...tempNewData };
+            }
+          }
+          recordList.splice(recordIndex, 1, { ...newData });
+          onDataChange(recordList);
         },
-        onChange: ()=>{},
+        onChange: () => {},
       }}
     />
   );
 }
+
+export const checkShouldUpdate = (dataIndex, newRowData, prevRowData, col) => {
+  let shouldUpdate = false;
+
+  col.dependencies?.forEach((depend) => {
+    if (JSON.stringify(newRowData[depend]) !== JSON.stringify(prevRowData[depend])) shouldUpdate = true;
+  });
+  return shouldUpdate;
+};
 
 export default ProEditOrderTable;
