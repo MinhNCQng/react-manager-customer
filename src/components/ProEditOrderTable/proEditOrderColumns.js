@@ -1,6 +1,6 @@
 import { InputNumber, Select } from "antd";
 
-const proEditOrderColumns = ({ getProductById, products, getFinalPrice, }) => {
+const proEditOrderColumns = ({ getProductById, products, getFinalPrice }) => {
   const columns = [
     {
       title: "Product name",
@@ -33,6 +33,7 @@ const proEditOrderColumns = ({ getProductById, products, getFinalPrice, }) => {
       onDependChange: (newData)=>{
         const selectedProduct = getProductById(newData.orderProductId);
         newData.orderUnitPrice = selectedProduct.price
+        return newData;
       },
       dataIndex: "orderUnitPrice",
       valueType: "digit",
@@ -56,8 +57,7 @@ const proEditOrderColumns = ({ getProductById, products, getFinalPrice, }) => {
       dependencies: ["orderUnitPrice","orderQuantum","orderDiscount","accessory"],
       onDependChange:(newData)=> {
         newData.orderFinalPrice = getFinalPrice(newData)
-     
-
+        return newData
       },
       editable: true,
       renderFormItem: (record, rowInfo, form) => {
@@ -73,21 +73,9 @@ const proEditOrderColumns = ({ getProductById, products, getFinalPrice, }) => {
     },
   ];
 
-  const mergedColumns = [
+  const dependColumns = [
     ...columns,
-    {
-      title:"orderDiscount",
-      dataIndex:"orderDiscount",
-      dependencies:["orderProductId","orderQuantum"],
-      onDependChange:(newData) =>{
-        const selectedProduct = getProductById(newData.orderProductId);
-        console.log("hhhhh")
-        if (selectedProduct.name ==="Lược chải tóc") newData.orderDiscount = 30;
-        if (newData.orderQuantum ===5) newData.orderDiscount = 60;
-        
-      }
-    }
   ]
-  return [columns,mergedColumns];
+  return [columns,dependColumns];
 };
 export default proEditOrderColumns;

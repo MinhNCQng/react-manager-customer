@@ -1,21 +1,53 @@
+import { EditableProTable } from "@ant-design/pro-table";
+import { Button } from "antd";
 import deepcopy from "deepcopy";
 const EditTable = ({
   columns,
+  dependColumns,
   dataSource,
   onDataChange,
   expandableRowRender,
 }) => {
   const checkShouldUpdate = (dataIndex, newRowData, prevRowData, col) => {
     let shouldUpdate = false;
-
     col.dependencies?.forEach((depend) => {
       if (JSON.stringify(newRowData[depend]) !== JSON.stringify(prevRowData[depend]))
         shouldUpdate = true;
     });
     return shouldUpdate;
   };
-  const editableKeys = dataSource.map((product) => product.id);
-  const 
+  const updateDataDependencies = (changedRecord,rowId)=>{
+    let newChangedData = {...changedRecord};
+    let prevDataSource = {
+    ...dataSource.find((row) => row.id === rowId),
+    };
+    while (true) {
+        const tempNewData = deepcopy(newChangedData);
+        let isHasChange = false;
+        Object.keys(newChangedData).forEach((dataIndex) => {
+        const col = dependColumns.find(
+            (col) => col.dataIndex === dataIndex
+        );
+        if (!col) {
+            return;
+        }
+        const isColShouldUpdate = checkShouldUpdate(
+            dataIndex,
+            newChangedData,
+            prevDataSource,
+            col
+        );
+        if (isColShouldUpdate) {
+            isHasChange = true;
+            newChangedData = col.onDependChange(deepcopy(newChangedData));
+        }
+        });
+        if (!isHasChange) break;
+        prevDataSource = deepcopy(tempNewData) ;
+    }
+    return newChangedData;
+  }
+  const editableKeys = dataSource?.map((product) => product.id) || [];
   return (
     <EditableProTable
       headerTitle="Cart"
@@ -48,7 +80,6 @@ const EditTable = ({
         expandedRowRender: expandableRowRender,
       }}
       editable={{
-        form: form,
         type: "multiple",
         editableKeys,
         saveText: "save",
@@ -58,46 +89,22 @@ const EditTable = ({
           return [defaultDoms.delete];
         },
         onValuesChange: (changedRecord, recordList) => {
-          
-          const rowId = changedRecord?.id;
-          if (!changedRecord) {
-            return onDataChange(recordList);
-          }
-          const recordIndex = recordList.findIndex(
-            (record) => record.id === rowId
-          );
-          let newChangedData = { ...changedRecord };
-          let prevDataSource = {
-            ...dataSource.find((row) => row.id === rowId),
-          };
-          if (changedRecord) {
-            while (true) {
-              const tempNewData = { ...newChangedData };
-              let isHasChange = false;
-              Object.keys(newChangedData).forEach((dataIndex) => {
-                const col = mergedColumns.find(
-                  (col) => col.dataIndex === dataIndex
-                );
-                if (!col) {
-                  return;
-                }
-                const isColShouldUpdate = checkShouldUpdate(
-                  dataIndex,
-                  newChangedData,
-                  prevDataSource,
-                  col
-                );
-                if (isColShouldUpdate) {
-                  isHasChange = true;
-                  newChangedData = col.onDependChange(deepcopy(newChangedData));
-                }
-              });
-              if (!isHasChange) break;
-              prevDataSource = { ...tempNewData };
+            if (!changedRecord) {
+              return onDataChange(recordList);
             }
-          }
-          recordList.splice(recordIndex, 1, { ...newChangedData });
-          onDataChange(recordList);
+            const updateRecordList = [...recordList];
+            const rowId = changedRecord?.id;
+            const recordIndex = recordList.findIndex(
+              (record) => record.id === rowId
+            );
+            const updatedRowDependData = updateDataDependencies(
+              changedRecord,
+              rowId,
+            );
+            updateRecordList.splice(recordIndex, 1, {
+              ...updatedRowDependData,
+            });
+            onDataChange(updateRecordList);
         },
         onChange: () => {},
       }}

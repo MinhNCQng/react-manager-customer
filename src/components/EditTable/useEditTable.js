@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from "react";
 import EditableCell from "./EditableCell";
-import getEditTableActions from "./EditTableAction";
 import EditTableColumn from "./EditTableColumn";
 import EditTableHandle from "./EditTableHandle";
 import { getTableData } from "./EditTableHelper";
