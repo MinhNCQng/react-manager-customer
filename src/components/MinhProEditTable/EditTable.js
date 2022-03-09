@@ -1,65 +1,68 @@
-import { EditOutlined } from "@ant-design/icons/lib/icons";
 import { EditableProTable } from "@ant-design/pro-table";
+import { ProFormDependency } from "@ant-design/pro-form";
 import { Button } from "antd";
 import deepcopy from "deepcopy";
 
 const EditTable = ({
-  form,
+  value = [],
+  onChange,
   columns,
   disabled,
   dependColumns,
-  dataSource,
-  onDataChange,
   expandableRowRender,
 }) => {
+  const onDataChange = onChange;
   const checkShouldUpdate = (dataIndex, newRowData, prevRowData, col) => {
     let shouldUpdate = false;
     col.dependencies?.forEach((depend) => {
-      if (JSON.stringify(newRowData[depend]) !== JSON.stringify(prevRowData[depend]))
+      if (
+        JSON.stringify(newRowData[depend]) !==
+        JSON.stringify(prevRowData[depend])
+      )
         shouldUpdate = true;
     });
     return shouldUpdate;
   };
-  const updateDataDependencies = (changedRecord,rowId)=>{
-    let newChangedData = {...changedRecord};
+  const updateDataDependencies = (changedRecord, rowId) => {
+    let newChangedData = { ...changedRecord };
     let prevDataSource = {
-    ...dataSource.find((row) => row.id === rowId),
+      ...value.find((row) => row.id === rowId),
     };
     while (true) {
-        const tempNewData = deepcopy(newChangedData);
-        let isHasChange = false;
-        Object.keys(newChangedData).forEach((dataIndex) => {
-        const col = dependColumns.find(
-            (col) => col.dataIndex === dataIndex
-        );
+      const tempNewData = deepcopy(newChangedData);
+      let isHasChange = false;
+      Object.keys(newChangedData).forEach((dataIndex) => {
+        const col = dependColumns.find((col) => col.dataIndex === dataIndex);
         if (!col) {
-            return;
+          return;
         }
         const isColShouldUpdate = checkShouldUpdate(
-            dataIndex,
-            newChangedData,
-            prevDataSource,
-            col
+          dataIndex,
+          newChangedData,
+          prevDataSource,
+          col
         );
         if (isColShouldUpdate) {
-            isHasChange = true;
-            newChangedData = col.onDependChange(deepcopy(newChangedData));
+          isHasChange = true;
+          newChangedData = col.onDependChange(deepcopy(newChangedData));
         }
-        });
-        if (!isHasChange) break;
-        prevDataSource = deepcopy(tempNewData) ;
+      });
+      if (!isHasChange) break;
+      prevDataSource = deepcopy(tempNewData);
     }
     return newChangedData;
-  }
-  const editableKeys = dataSource?.map((product) => product.id) || [];
+  };
+  const editableKeys = value ? value.map((product) => product.id) : [];
   return (
     <EditableProTable
       headerTitle="Cart"
+      components={false}
       columns={columns}
       rowKey="id"
-      value={dataSource}
+      value={value}
+      pagination={{ pageSize: 5 }}
       recordCreatorProps={{
-        position: "top",
+        position: "bottom",
         newRecordType: "dataSource",
         creatorButtonText: "Add new order",
         record: () => ({
@@ -72,7 +75,7 @@ const EditTable = ({
             type="primary"
             key="save"
             onClick={() => {
-              console.log(dataSource, editableKeys);
+              console.log(value, editableKeys);
             }}
           >
             Cái này là cái nút trên cùng
@@ -84,7 +87,6 @@ const EditTable = ({
         expandedRowRender: expandableRowRender,
       }}
       editable={{
-        form:form,
         type: "multiple",
         editableKeys: disabled ? [] : editableKeys,
         saveText: "save",
@@ -94,22 +96,22 @@ const EditTable = ({
           return [defaultDoms.delete];
         },
         onValuesChange: (changedRecord, recordList) => {
-            if (!changedRecord) {
-              return onDataChange(recordList);
-            }
-            const updateRecordList = [...recordList];
-            const rowId = changedRecord?.id;
-            const recordIndex = recordList.findIndex(
-              (record) => record.id === rowId
-            );
-            const updatedRowDependData = updateDataDependencies(
-              changedRecord,
-              rowId,
-            );
-            updateRecordList.splice(recordIndex, 1, {
-              ...updatedRowDependData,
-            });
-            onDataChange(updateRecordList);
+          if (!changedRecord) {
+            return onDataChange(recordList);
+          }
+          const updateRecordList = [...recordList];
+          const rowId = changedRecord?.id;
+          const recordIndex = recordList.findIndex(
+            (record) => record.id === rowId
+          );
+          const updatedRowDependData = updateDataDependencies(
+            changedRecord,
+            rowId
+          );
+          updateRecordList.splice(recordIndex, 1, {
+            ...updatedRowDependData,
+          });
+          onDataChange(updateRecordList);
         },
         onChange: () => {},
       }}
@@ -117,4 +119,4 @@ const EditTable = ({
   );
 };
 
-export default EditTable
+export default EditTable;

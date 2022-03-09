@@ -5,6 +5,13 @@ import OrderCart from "../../OrderCart/OrderCart";
 import ProEditOrderTable from "../../ProEditOrderTable/ProEditOrderTable";
 import { useState } from "react";
 import CartButton from "../../Button/CartButton";
+import MinhForm from "../TestForm/MinhForm";
+import ProForm from "@ant-design/pro-form";
+import Form from "antd/lib/form/Form";
+import OrderDetailInfo from "./OrderDetailInfo";
+import { fbStore } from "../../Firebase/Firebase";
+import { ref, set } from "firebase/database";
+import { message } from "antd";
 
 const cartProductsAdaptive = (productOrderedList, products) => {
   const cartProducts = [];
@@ -30,22 +37,22 @@ const OrderDetail = (props) => {
   const orderIdItem = useSelector((storeData) =>
     storeData.orders.find((order) => order.orderId === orderId)
   );
-  const [cartProducts, setCartProducts] = useState(
-    cartProductsAdaptive(orderIdItem?.productOrderedList, products)
-  );
-  const onUpdateProducts = () => {
-
-  }
+  const onUpdateProducts = (cartInfo) => {
+    set(ref(fbStore,`/orders/${orderId}/productOrderedList/`),cartInfo)
+    message.success("Update complete");
+  };
   if (!orderIdItem || !products.length) return <></>;
   return (
-    <CardLayout cardTitle={"Order detail"} back>
-      <ProEditOrderTable
-        customerProfile={{}}
-        dataSource={cartProducts}
-        onDataChange={(newCartData) => setCartProducts(newCartData)}
-      />
-      <CartButton text={"Update"} onButtonClick={onUpdateProducts}/>
-    </CardLayout>
+    <MinhForm initialValues={orderIdItem.productOrderedList} submitter={false} onFinish = {onUpdateProducts}>
+      <CardLayout cardTitle={"Order detail"} back>
+        <ProForm.Item>
+          <OrderDetailInfo />
+        </ProForm.Item>
+        <ProForm.Item name={["products"]}>
+          <ProEditOrderTable submitText={"Update"} />
+        </ProForm.Item>
+      </CardLayout>
+    </MinhForm>
   );
 };
 

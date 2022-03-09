@@ -1,35 +1,28 @@
-import { message, Tabs } from "antd";
+import ProForm, { ProFormDatePicker } from "@ant-design/pro-form";
+import { Form, message, Select, Tabs } from "antd";
+import { ref, set } from "firebase/database";
 import { useState } from "react";
 import CartButton from "../../Button/CartButton";
-import { addNewItem, getCurrentDayString } from "../../Firebase/Firebase";
+import { addNewItem, fbStore, getCurrentDayString } from "../../Firebase/Firebase";
 import CardLayout from "../../Layouts/CardLayout/CardLayout";
 import OrderProfileForm from "../../OrderProfileForm/OrderProfileForm";
 import ProEditOrderTable from "../../ProEditOrderTable/ProEditOrderTable";
+import MinhForm from "../TestForm/MinhForm";
 
-
-const {TabPane} = Tabs
+const { TabPane } = Tabs;
 const NewOrder = (props) => {
-  const [customerProfile, setCustomerProfile] = useState()
-  const onCustomerProfileSelected = (selectedProfile) => {
-    setCustomerProfile(selectedProfile)
+  const orderHandler = (orderInfo ) => {
+    makeOrder(orderInfo,orderInfo.orderCustomerProfile.customerId)
   }
-  const [cartProduct, setCartProduct] = useState([])
-  const onButtonClick = () => {
-    makeOrder(cartProduct)
-  }
-  const makeOrder = (cartProducts) => {
-    if (!cartProducts.length) {
-      message.info("You haven't order any dish :<");
-      return;
-    }
-    const orderId = makeOrderRequest(customerProfile);
+  const makeOrder = (cartProducts,customerId) => {
+    const orderId = makeOrderRequest(customerId);
     pushOrders(cartProducts, orderId, "Order successfully!");
   };
-  const makeOrderRequest = (customerProfile) => {
+  const makeOrderRequest = (customerId) => {
     return addNewItem(
       "/orders/",
       {
-        customerOrderId: customerProfile.customerId,
+        customerOrderId: customerId,
         orderDate: getCurrentDayString(),
         orderStatus: "Pending",
       },
@@ -37,34 +30,30 @@ const NewOrder = (props) => {
     );
   };
   const pushOrders = (cartProducts, orderId, messageWhenCompleted) => {
-    console.log(cartProducts);
-    for (const cartProduct of cartProducts) {
-      addNewItem(
-        `/orders/${orderId}/productOrderedList/`,
-        {
-          orderProductId: cartProduct.orderProductId || 0,
-          orderQuantum: cartProduct.orderQuantum || 0,
-          orderUnitPrice: cartProduct.orderUnitPrice || 0,
-          orderFinalPrice: cartProduct.orderFinalPrice || 0,
-          orderDiscount: cartProduct.orderDiscount || 0,
-        },
-        true
-      );
-    }
+    set(ref(fbStore,`/orders/${orderId}/productOrderedList/`),cartProducts)
     message.success(messageWhenCompleted);
   };
   return (
-    <CardLayout cardTitle={"Add new order"}>
+    <MinhForm onFinish = {orderHandler} submitter={false}>
+      <CardLayout cardTitle={"Add new order"}>
         <Tabs defaultActiveKey="profile">
           <TabPane tab="Profile" key={"profile"}>
-            <OrderProfileForm customerProfile = {customerProfile} onCustomerProfileSelected = {onCustomerProfileSelected}/>
+            <ProForm.Item name={"orderCustomerProfile"}>
+              <OrderProfileForm />
+            </ProForm.Item>
+         
+            <ProFormDatePicker label="order date" name={"orderDate"}/>
+            <ProFormDatePicker label="order pick" name={"orderPickup"}/>
+
           </TabPane>
           <TabPane tab="New order" key={"newOrder"}>
-            <ProEditOrderTable customerProfile = {customerProfile} dataSource={cartProduct} onDataChange={(cartProducts) => setCartProduct(cartProducts)} />
-            <CartButton onButtonClick={onButtonClick} text="Order"/>
+            <ProForm.Item name={"orderList"}>
+              <ProEditOrderTable />
+            </ProForm.Item>
           </TabPane>
         </Tabs>
-    </CardLayout>
+      </CardLayout>
+    </MinhForm>
   );
 };
 

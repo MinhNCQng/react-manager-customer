@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
+    "@ant-design/pro-card": "^1.18.37",
     "@ant-design/pro-form": "^1.55.0",
     "@ant-design/pro-table": "^2.64.1",
     "@reduxjs/toolkit": "^1.7.2",

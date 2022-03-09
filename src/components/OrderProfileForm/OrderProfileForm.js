@@ -2,7 +2,7 @@ import { Form, Row } from "antd";
 import ProfileSelector from "../ProfileSelector/ProfileSelector";
 import OrderProfileFormItem from "./OrderProfileFormItem";
 
-const OrderProfileForm = ({customerProfile, onCustomerProfileSelected}) => {
+const OrderProfileForm = ({ value : customerProfile, onChange }) => {
   const renderFields = [
     { key: "firstName", name: "First name" },
     { key: "lastName", name: "Last name" },
@@ -11,26 +11,23 @@ const OrderProfileForm = ({customerProfile, onCustomerProfileSelected}) => {
     { key: "address", name: "Address" },
   ];
 
-  const onProfileChange = (value) => {
-    onCustomerProfileSelected(value);
+  const onProfileChange = (customerProfile) => {
+    onChange(customerProfile);
   };
-  return (
-    <Form>
-      <Form.Item label="Select customer Id">
-        <ProfileSelector onProfileChange={onProfileChange} />
-        {customerProfile && (
-          <Row justify="space-between">
-            {renderFields.map((renderField, index) => (
-              <OrderProfileFormItem
-                key={index}
-                label={renderField.name}
-                value={customerProfile[renderField.key]}
-              />
-            ))}
-          </Row>
-        )}
-      </Form.Item>
-    </Form>
+  return (<>
+      <ProfileSelector customerProfile={customerProfile} onProfileChange={onProfileChange} />
+      {customerProfile && (
+        <Row justify="space-between">
+          {renderFields.map((renderField, index) => (
+            <OrderProfileFormItem
+              key={index}
+              label={renderField.name}
+              value={customerProfile[renderField.key]}
+            />
+          ))}
+        </Row>
+      )} 
+    </>
   );
 };
 

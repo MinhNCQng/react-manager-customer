@@ -49,6 +49,39 @@ const proEditOrderColumns = ({ getProductById, products, getFinalPrice }) => {
         rules: [{ required: true, message: "Vui lòng nhập dùm cái đi" }],
       },
     },
+
+    {
+      title: "Quantum1",
+      dataIndex: "orderQuantum1",
+      key: "orderQuantum1",
+      valueType: "digit",
+      fieldProps: { min: 1, max: 10 },
+      formItemProps: {
+        rules: [{ required: true, message: "Vui lòng nhập dùm cái đi" }],
+      },
+    },
+
+    {
+      title: "Quantum2",
+      dataIndex: "orderQuantum2",
+      key: "orderQuantum2",
+      valueType: "digit",
+      fieldProps: { min: 1, max: 10 },
+      formItemProps: {
+        rules: [{ required: true, message: "Vui lòng nhập dùm cái đi" }],
+      },
+    },
+
+    {
+      title: "Quantum3",
+      dataIndex: "orderQuantum3",
+      key: "orderQuantum3",
+      valueType: "digit",
+      fieldProps: { min: 1, max: 10 },
+      formItemProps: {
+        rules: [{ required: true, message: "Vui lòng nhập dùm cái đi" }],
+      },
+    },
     
     {
       title: "Final price",
