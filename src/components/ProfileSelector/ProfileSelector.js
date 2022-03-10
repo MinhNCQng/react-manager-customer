@@ -1,9 +1,13 @@
 import { Col, Row, Select } from "antd";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { getDataJSON } from "../Firebase/Firebase";
+import useFirebaseData from "../Firebase/useFirebaseData";
 
 const { Option } = Select;
 const ProfileSelector = ({customerProfile, onProfileChange}) => {
-  const customers = useSelector((storeData) => storeData.customers);
+  const [customers] = useFirebaseData("customers","customerId")
+
   const onChange = (key) => {
     onProfileChange(customers[key])
   }

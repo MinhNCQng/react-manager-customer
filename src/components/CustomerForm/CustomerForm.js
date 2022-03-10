@@ -1,6 +1,6 @@
 import ProForm from "@ant-design/pro-form";
 import { Row } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 import CustomerDataActions from "./CustomerFormAction";
 import { labelAndNameFormFields } from "./CustomerFormFields";
 import CustomerFormHandle from "./CustomerFormHandle";
@@ -9,14 +9,14 @@ import CustomerFormItem from "./CustomerFormItem";
 import useCustomerFormState from "./useCustomerFormState";
 
 function CustomerForm({
-  customerData: customerInfo,
+  customerData,
   customerId,
   actions,
   form,
   newRegister,
 }) {
-  const customerFormState = useCustomerFormState(customerInfo, newRegister);
-  const { isEditing, customerData } = customerFormState;
+  const customerFormState = useCustomerFormState(newRegister);
+  const { isEditing } = customerFormState;
   const customerFormHandle = CustomerFormHandle({
     ...customerFormState,
     customerId,
@@ -24,12 +24,14 @@ function CustomerForm({
   });
   const customerDataActions =
     actions || CustomerDataActions({ isEditing, ...customerFormHandle });
-
+  useEffect(() => {
+    form.resetFields()
+  } )
   return (
     <>
       <ProForm
         form={form}
-        initialValues={customerData}
+        initialValues = {customerData}
         {...formItemLayout}
         layout="horizontal"
         submitter={{

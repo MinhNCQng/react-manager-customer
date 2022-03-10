@@ -9,39 +9,28 @@ import MinhForm from "../TestForm/MinhForm";
 import ProForm from "@ant-design/pro-form";
 import Form from "antd/lib/form/Form";
 import OrderDetailInfo from "./OrderDetailInfo";
-import { fbStore } from "../../Firebase/Firebase";
+import { fbStore, getDataJSON } from "../../Firebase/Firebase";
 import { ref, set } from "firebase/database";
 import { message } from "antd";
-
-const cartProductsAdaptive = (productOrderedList, products) => {
-  const cartProducts = [];
-  if (!productOrderedList) return cartProducts;
-  for (const [key, orderItem] of Object.entries(productOrderedList)) {
-    const cartProduct = {
-      id: key,
-      orderProductId: orderItem.orderProductId,
-      orderQuantum: orderItem.orderQuantum,
-      orderUnitPrice: orderItem.orderUnitPrice,
-      orderFinalPrice: orderItem.orderFinalPrice,
-      orderDiscount: orderItem.orderDiscount,
-    };
-    cartProducts.push(cartProduct);
-  }
-  return cartProducts;
-};
+import useFirebaseData from "../../Firebase/useFirebaseData";
+import compareOrderData, { deepDiffMapper } from "./compareData";
 
 const OrderDetail = (props) => {
   const params = useParams();
   const orderId = params.orderId;
-  const products = useSelector((storeData) => storeData.products);
-  const orderIdItem = useSelector((storeData) =>
-    storeData.orders.find((order) => order.orderId === orderId)
-  );
+  const [products] = useFirebaseData("products","productId")
+  const [orders] = useFirebaseData("orders","orderId")
+  const orderIdItem = orders.find((order) => order.orderId === orderId)
+
+
+
   const onUpdateProducts = (cartInfo) => {
-    set(ref(fbStore,`/orders/${orderId}/productOrderedList/`),cartInfo)
-    message.success("Update complete");
+    // set(ref(fbStore,`/orders/${orderId}/productOrderedList/`),cartInfo)
+    // message.success("Update complete");
+    // compareOrderData(cartInfo, orderIdItem.productOrderedList)
+   console.log(deepDiffMapper.map(orderIdItem.productOrderedList,cartInfo))
   };
-  if (!orderIdItem || !products.length) return <></>;
+  if (!orderIdItem || !products.length) return <>Loading</>;
   return (
     <MinhForm initialValues={orderIdItem.productOrderedList} submitter={false} onFinish = {onUpdateProducts}>
       <CardLayout cardTitle={"Order detail"} back>

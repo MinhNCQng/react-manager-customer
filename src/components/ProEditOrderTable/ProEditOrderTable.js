@@ -3,8 +3,9 @@ import ProForm, {
   ProFormDependency,
 } from "@ant-design/pro-form";
 import { Button } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { getDataJSON } from "../Firebase/Firebase";
 import EditTable from "../MinhProEditTable/EditTable";
 import MinhForm from "../Pages/TestForm/MinhForm";
 import OrderExpandTable from "./OrderExpandTable";
@@ -12,7 +13,7 @@ import proEditOrderColumns from "./proEditOrderColumns";
 import proEditOrderTableHandler from "./proEditOrderTableHandler";
 
 function ProEditOrderTable({submitText}) {
-  const products = useSelector((storeData) => storeData.products);
+  const [products , setProducts ] = useState([])
   const { getProductById, getFinalPrice } = proEditOrderTableHandler(products);
   
   const [columns, dependColumns] = proEditOrderColumns({
@@ -20,7 +21,7 @@ function ProEditOrderTable({submitText}) {
     getFinalPrice,
     products,
   });
-
+  useEffect(()=>getDataJSON("products","productId").then(setProducts),[])
   return (
     <ProFormDependency name={["orderCustomerProfile"]}>
       {({ orderCustomerProfile }) => {

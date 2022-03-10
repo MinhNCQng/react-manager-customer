@@ -7,7 +7,7 @@ const EditTable = (props) => {
     useEditTable(props);
   return (
     <Form component={false} {...formProps}>
-      <Table pagination={{ pageSize: 10 }} {...tableProps} />
+      <Table pagination={{ pageSize: 10 }} {...tableProps} dataSource={props.dataSource}/>
       {canAddNewRow && (
         <Row>
           <Col>

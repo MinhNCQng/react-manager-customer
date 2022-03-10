@@ -33,4 +33,13 @@ const getCurrentDayString = ()=>
     year:"numeric"
 })
 
-export { fbStore, addNewItem, updateItem, deleteItem, getCurrentDayString };
+const getDataJSON = async (path,keyId) => {
+  return fetch(`${firebaseConfig.databaseURL}/${path}.json`).then(res => res.json()).then(data => getDataArray(data,keyId))
+}
+
+const getDataArray = (dataDict = {}, keyId) => {
+  if (!dataDict) return []
+  return Object.entries(dataDict).map(([key,value]) => ({...value,[keyId]:key}))
+}
+
+export { fbStore, addNewItem, updateItem, deleteItem, getCurrentDayString, getDataJSON };

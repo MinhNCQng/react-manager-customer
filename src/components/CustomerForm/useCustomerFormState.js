@@ -1,9 +1,8 @@
 import { useState } from "react";
 
-function useCustomerFormState(customerInfo,newRegister) {
+function useCustomerFormState(newRegister) {
     const [isEditing, setIsEditing] = useState(newRegister ? true:false);
-    const [customerData, setCustomerData] = useState(customerInfo);
-    return ( {customerData,isEditing,setIsEditing,setCustomerData} );
+    return ( {isEditing,setIsEditing} );
 }
 
 export default useCustomerFormState;

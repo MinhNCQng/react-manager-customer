@@ -6,7 +6,6 @@ import EditTable from "../EditTable/EditTable";
 const CustomerOrderTable = ({ customerId }) => {
   const { orders, history, form, dataSource, columns } = useCustomerOrderTable(customerId);
   const {onRow,onUpdateOrder} = CustomerOrderTableHandle({orders,history})
-
   return (
     <EditTable
       form={form}

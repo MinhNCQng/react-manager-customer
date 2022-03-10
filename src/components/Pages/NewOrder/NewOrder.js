@@ -7,6 +7,7 @@ import { addNewItem, fbStore, getCurrentDayString } from "../../Firebase/Firebas
 import CardLayout from "../../Layouts/CardLayout/CardLayout";
 import OrderProfileForm from "../../OrderProfileForm/OrderProfileForm";
 import ProEditOrderTable from "../../ProEditOrderTable/ProEditOrderTable";
+import { deepDiffMapper } from "../OrderDetail/compareData";
 import MinhForm from "../TestForm/MinhForm";
 
 const { TabPane } = Tabs;
@@ -31,7 +32,6 @@ const NewOrder = (props) => {
   };
   const pushOrders = (cartProducts, orderId, messageWhenCompleted) => {
     set(ref(fbStore,`/orders/${orderId}/productOrderedList/`),cartProducts)
-    message.success(messageWhenCompleted);
   };
   return (
     <MinhForm onFinish = {orderHandler} submitter={false}>

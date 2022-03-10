@@ -2,7 +2,6 @@ import ProForm, { ProFormDatePicker } from "@ant-design/pro-form";
 import OrderProfileForm from "../../OrderProfileForm/OrderProfileForm";
 
 function OrderDetailInfo({ value }) {
-  console.log(value);
   return (
     <>
       <ProForm.Item name={"orderCustomerProfile"}>
