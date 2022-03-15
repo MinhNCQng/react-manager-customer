@@ -1,13 +1,10 @@
 import { Col, Row, Select } from "antd";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { getDataJSON } from "../Firebase/Firebase";
-import useFirebaseData from "../Firebase/useFirebaseData";
+import useData from "../MinhServer/useData";
 
 const { Option } = Select;
 const ProfileSelector = ({customerProfile, onProfileChange}) => {
-  const [customers] = useFirebaseData("customers","customerId")
-
+  const [customers] = useData("Customers","customerId")
+  
   const onChange = (key) => {
     onProfileChange(customers[key])
   }

@@ -1,19 +1,15 @@
 import ProForm, {
-  ProFormDateTimeRangePicker,
   ProFormDependency,
 } from "@ant-design/pro-form";
-import { Button } from "antd";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { getDataJSON } from "../Firebase/Firebase";
 import EditTable from "../MinhProEditTable/EditTable";
-import MinhForm from "../Pages/TestForm/MinhForm";
+import useData from "../MinhServer/useData";
+import MinhFormButton from "../Pages/TestForm/MinhFormButton";
 import OrderExpandTable from "./OrderExpandTable";
 import proEditOrderColumns from "./proEditOrderColumns";
 import proEditOrderTableHandler from "./proEditOrderTableHandler";
 
-function ProEditOrderTable({submitText}) {
-  const [products , setProducts ] = useState([])
+function ProEditOrderTable({submitText, updateCallBack}) {
+  const [products] = useData("Products","productId")
   const { getProductById, getFinalPrice } = proEditOrderTableHandler(products);
   
   const [columns, dependColumns] = proEditOrderColumns({
@@ -21,7 +17,7 @@ function ProEditOrderTable({submitText}) {
     getFinalPrice,
     products,
   });
-  useEffect(()=>getDataJSON("products","productId").then(setProducts),[])
+
   return (
     <ProFormDependency name={["orderCustomerProfile"]}>
       {({ orderCustomerProfile }) => {
@@ -42,7 +38,8 @@ function ProEditOrderTable({submitText}) {
               />
             </ProForm.Item>
             <br />
-            <Button htmlType="submit">{submitText || "Order"}</Button>
+            <MinhFormButton htmlType="submit" submitText = {submitText} updateCallBack= {updateCallBack}/>
+            
           </>
         );
       }}

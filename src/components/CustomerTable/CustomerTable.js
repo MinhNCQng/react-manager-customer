@@ -1,13 +1,10 @@
 import { Table } from "antd";
 import { CustomerTableInfo } from "./CustomerTableInfo";
 import { useHistory, useRouteMatch } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { useState } from "react";
-import { getDataJSON } from "../Firebase/Firebase";
-import useFirebaseData from "../Firebase/useFirebaseData";
+import useData from "../MinhServer/useData";
 function CustomerTable() {
   const { customerTableColumns:columns } = CustomerTableInfo;
-  const [customerTableRowData] = useFirebaseData("customers","customerId")
+  const [customerTableRowData] = useData("Customers","customerId")
   const isLoading = !customerTableRowData
   const dataSource = customerTableRowData.map(customer => {return {...customer, key: customer.customerId}})
   const history = useHistory();

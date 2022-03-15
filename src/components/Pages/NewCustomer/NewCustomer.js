@@ -2,7 +2,7 @@ import { Form } from "antd";
 import CustomerForm from "../../CustomerForm/CustomerForm";
 import CardLayout from "../../Layouts/CardLayout/CardLayout";
 import { addingNewAction } from "../../Layouts/CardLayout/CardLayoutActions";
-import { addNewItem } from "../../Firebase/Firebase";
+import { addNewCustomer } from "../../MinhServer/action";
 function NewCustomer(props) {
   const [form] = Form.useForm();
   const isEditing = true;
@@ -11,7 +11,7 @@ function NewCustomer(props) {
       .validateFields()
       .then(() => {
         const customerInfo = form.getFieldsValue();
-        addNewItem("/customers/", customerInfo);
+        addNewCustomer(customerInfo);
       })
       .catch((error) => console.log(error));
     

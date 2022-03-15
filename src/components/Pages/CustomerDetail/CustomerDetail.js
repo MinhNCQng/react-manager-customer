@@ -1,20 +1,18 @@
 import { Tabs, Form } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CustomerForm from "../../CustomerForm/CustomerForm";
 import { useParams } from "react-router-dom";
 import CardLayout from "../../Layouts/CardLayout/CardLayout";
-import { useSelector } from "react-redux";
 import CustomerOrderTable from "../../CustomerOrderTable/CustomerOrderTable";
-import { getDataJSON } from "../../Firebase/Firebase";
-import useFirebaseData from "../../Firebase/useFirebaseData";
+import useData from "../../MinhServer/useData";
 
 const { TabPane } = Tabs;
 function CustomerDetail(props) {
   const setTabKey = useState("profile")[1];
   const params = useParams();
   const customerId = params.customerId;
-  const [customers] = useFirebaseData("customers","customerId")
-  
+  const [customers] = useData("Customers", "customerId");
+
   const customerData = customers.find(
     (customer) => customer.customerId === customerId
   );
@@ -22,7 +20,7 @@ function CustomerDetail(props) {
   const onTabChange = (key) => {
     setTabKey(key);
   };
-  
+
   return (
     <CardLayout cardTitle={"Customer detail"} back>
       <Tabs defaultActiveKey="profile" onChange={onTabChange}>

@@ -1,38 +1,28 @@
 import ProForm, { ProFormDatePicker } from "@ant-design/pro-form";
-import { Form, message, Select, Tabs } from "antd";
-import { ref, set } from "firebase/database";
-import { useState } from "react";
-import CartButton from "../../Button/CartButton";
-import { addNewItem, fbStore, getCurrentDayString } from "../../Firebase/Firebase";
+import {  Tabs } from "antd";
+import moment from "moment";
 import CardLayout from "../../Layouts/CardLayout/CardLayout";
+import { postToServer } from "../../MinhServer/action";
 import OrderProfileForm from "../../OrderProfileForm/OrderProfileForm";
 import ProEditOrderTable from "../../ProEditOrderTable/ProEditOrderTable";
-import { deepDiffMapper } from "../OrderDetail/compareData";
 import MinhForm from "../TestForm/MinhForm";
 
 const { TabPane } = Tabs;
 const NewOrder = (props) => {
   const orderHandler = (orderInfo ) => {
-    makeOrder(orderInfo,orderInfo.orderCustomerProfile.customerId)
+    const customerOrderId = orderInfo.orderCustomerProfile.customerId
+    const orderStatus = "Pending"
+    const orderDate = moment().format("DD/MM/YYYY")
+    const productOrderedList = orderInfo
+    const uploadObj = {
+      customerOrderId,
+      orderDate,
+      orderStatus,
+      productOrderedList,
+    }
+    postToServer("Orders",uploadObj)
   }
-  const makeOrder = (cartProducts,customerId) => {
-    const orderId = makeOrderRequest(customerId);
-    pushOrders(cartProducts, orderId, "Order successfully!");
-  };
-  const makeOrderRequest = (customerId) => {
-    return addNewItem(
-      "/orders/",
-      {
-        customerOrderId: customerId,
-        orderDate: getCurrentDayString(),
-        orderStatus: "Pending",
-      },
-      true
-    );
-  };
-  const pushOrders = (cartProducts, orderId, messageWhenCompleted) => {
-    set(ref(fbStore,`/orders/${orderId}/productOrderedList/`),cartProducts)
-  };
+ 
   return (
     <MinhForm onFinish = {orderHandler} submitter={false}>
       <CardLayout cardTitle={"Add new order"}>

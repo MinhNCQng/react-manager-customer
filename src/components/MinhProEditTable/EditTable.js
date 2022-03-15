@@ -93,7 +93,7 @@ const EditTable = ({
         cancelText: "cancel",
         deleteText: "delete",
         actionRender: (row, record, defaultDoms) => {
-          return [defaultDoms.delete];
+          return [defaultDoms.delete, defaultDoms.save];
         },
         onValuesChange: (changedRecord, recordList) => {
           if (!changedRecord) {
