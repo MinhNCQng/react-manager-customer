@@ -4,19 +4,19 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter as Router } from "react-router-dom";
-import StoreProvider from "./store/StoreProvider";
 import viVN from "antd/lib/locale/vi_VN";
 import { ConfigProvider } from "antd";
+import AuthenticationProvider from "./components/Authentication/AuthenticationProvider";
 
 ReactDOM.render(
   <React.StrictMode>
-    <StoreProvider>
-      <ConfigProvider locale={viVN}>
-        <Router>
+    <AuthenticationProvider>
+      <Router>
+        <ConfigProvider locale={viVN}>
           <App />
-        </Router>
-      </ConfigProvider>
-    </StoreProvider>
+        </ConfigProvider>
+      </Router>
+    </AuthenticationProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

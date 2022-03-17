@@ -1,6 +1,7 @@
 import ProForm from "@ant-design/pro-form";
 import { Row } from "antd";
 import React, { useEffect } from "react";
+import useRole from "../Authentication/useRole";
 import CustomerDataActions from "./CustomerFormAction";
 import { labelAndNameFormFields } from "./CustomerFormFields";
 import CustomerFormHandle from "./CustomerFormHandle";
@@ -22,6 +23,7 @@ function CustomerForm({
     customerId,
     form,
   });
+  const role = useRole()
   const customerDataActions =
     actions || CustomerDataActions({ isEditing, ...customerFormHandle });
   useEffect(() => {
@@ -36,6 +38,7 @@ function CustomerForm({
         layout="horizontal"
         submitter={{
           render: (props, doms) => {
+            if (role ==="admin")
             return customerDataActions;
           },
         }}

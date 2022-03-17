@@ -1,5 +1,5 @@
-const baseTableURL = "http://localhost/parse/classes/"
-const baseFunctionURL = "http://localhost/parse/functions/"
+const baseTableURL = "http://localhost:1337/parse/classes/"
+const baseFunctionURL = "http://localhost:1337/parse/functions/"
 const appId = "myAppId"
 const configHeaders = {
     'Content-Type': 'application/json',

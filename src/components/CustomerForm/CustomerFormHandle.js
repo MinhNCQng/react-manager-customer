@@ -1,4 +1,5 @@
 import { updateItem } from "../Firebase/Firebase";
+import { updateDbTable } from "../MinhServer/action";
 
 function CustomerFormHandle({
   setIsEditing,
@@ -9,7 +10,6 @@ function CustomerFormHandle({
 }) {
   const onEditButtonCLicked = (e) => {
     setIsEditing(true);
-    setCustomerData(form.getFieldsValue());
   };
   const onCancelButtonClicked = (e) => {
     setIsEditing(false);
@@ -17,7 +17,8 @@ function CustomerFormHandle({
   };
   const onDoneButtonClicked = (e) => {
     const newCustomerData = form.getFieldsValue();
-    updateItem(`/customers/${customerId}`, newCustomerData);
+    updateDbTable("Customers",customerId,newCustomerData)
+    form.setFieldsValue(newCustomerData)
     setIsEditing(false);
   };
   return { onEditButtonCLicked, onCancelButtonClicked, onDoneButtonClicked };

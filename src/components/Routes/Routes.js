@@ -4,6 +4,7 @@ import TestDisableWithProForm from "../Pages/TestForm/test2";
 import CustomerRoute from "./CustomerRoute/CustomerRoute";
 import OrderRoute from "./OrderRoute/OrderRoute";
 import ProductRoute from "./ProductRoute/ProductRoute";
+import UserRoute from "./UserRoute/UserRoute";
 
 function PageRoutes(props) {
   return (
@@ -16,6 +17,9 @@ function PageRoutes(props) {
       </Route>
       <Route path={"/order"}>
         <OrderRoute />
+      </Route>
+      <Route path={"/users/"}>
+        <UserRoute/>
       </Route>
       <Route path={"/test"}>
         <TestForm/>
