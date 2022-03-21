@@ -10,13 +10,11 @@ import AuthenticationProvider from "./components/Authentication/AuthenticationPr
 
 ReactDOM.render(
   <React.StrictMode>
-    <AuthenticationProvider>
       <Router>
         <ConfigProvider locale={viVN}>
           <App />
         </ConfigProvider>
       </Router>
-    </AuthenticationProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

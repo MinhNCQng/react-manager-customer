@@ -11,11 +11,9 @@ function App() {
   return (
     <div className="App">
       <Layout>
-        <Header style={{backgroundColor:"unset"}}>
-          <Row justify="end" align="middle">
-            <UserMenu/>
-          </Row>
-        </Header>
+        {/* <Header style={{backgroundColor:"unset"}}>
+          
+        </Header> */}
         <Content>
           <PageRoutes />
         </Content>
